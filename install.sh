@@ -12,28 +12,28 @@
 #   ./install.sh --help          - Show help
 #
 
-set -e
+set -euo pipefail
 
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
 
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKUP_DIR="$HOME/.config_backup_$(date +%Y%m%d_%H%M%S)"
-CONFIG_DIR="$HOME/.config"
-LOG_FILE="/tmp/dotfiles_install_$(date +%Y%m%d_%H%M%S).log"
+readonly DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly BACKUP_DIR="$HOME/.config_backup_$(date +%Y%m%d_%H%M%S)"
+readonly CONFIG_DIR="$HOME/.config"
+readonly LOG_FILE="/tmp/dotfiles_install_$(date +%Y%m%d_%H%M%S).log"
 
 # Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly NC='\033[0m'
 
 # Packages to install
-PACKAGES=(
+readonly PACKAGES=(
     # X11 and i3
     xorg xinit i3-wm i3blocks i3lock suckless-tools
     # Terminal and tools
@@ -60,7 +60,7 @@ PACKAGES=(
     # Fonts and themes
     fonts-noto-color-emoji papirus-icon-theme arc-theme
     # Utilities
-    dex arandr imagemagick curl wget git unzip
+    dex arandr imagemagick curl wget git unzip fontconfig
 )
 
 # ============================================================================
@@ -97,7 +97,7 @@ header() {
 }
 
 show_help() {
-    cat << EOF
+    cat << 'EOF'
 Dotfiles Installer for Debian 13 (Trixie) + i3
 Optimized for Asus Zenbook S 13 OLED (UM5302TA)
 
@@ -133,6 +133,7 @@ check_os() {
         error "Cannot detect OS. /etc/os-release not found."
     fi
     
+    # shellcheck source=/dev/null
     source /etc/os-release
     
     if [[ "$ID" != "debian" ]]; then
@@ -153,20 +154,26 @@ show_bios_warning() {
     echo -e "${YELLOW}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${YELLOW}║  IMPORTANT: Check BIOS settings before continuing!           ║${NC}"
     echo -e "${YELLOW}╠══════════════════════════════════════════════════════════════╣${NC}"
-    echo -e "${YELLOW}║  For Asus Zenbook S 13 OLED (UM5302TA):                       ║${NC}"
+    echo -e "${YELLOW}║  For Asus Zenbook S 13 OLED (UM5302TA):                      ║${NC}"
     echo -e "${YELLOW}║                                                              ║${NC}"
-    echo -e "${YELLOW}║  1. VMD Controller: DISABLED (required for NVMe detection)  ║${NC}"
-    echo -e "${YELLOW}║  2. Secure Boot: DISABLED (for third-party drivers)         ║${NC}"
-    echo -e "${YELLOW}║  3. Fast Boot: DISABLED (for proper USB detection)          ║${NC}"
+    echo -e "${YELLOW}║  1. VMD Controller: DISABLED (required for NVMe detection)   ║${NC}"
+    echo -e "${YELLOW}║  2. Secure Boot: DISABLED (for third-party drivers)          ║${NC}"
+    echo -e "${YELLOW}║  3. Fast Boot: DISABLED (for proper USB detection)           ║${NC}"
     echo -e "${YELLOW}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     
-    read -p "Have you configured BIOS correctly? [y/N] " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log "Please configure BIOS and run this script again."
-        exit 0
-    fi
+    read -r -p "Have you configured BIOS correctly? [y/N] " REPLY
+    case "$REPLY" in
+        [Yy]|[Yy][Ee][Ss])
+            success "BIOS configuration confirmed. Continuing..."
+            ;;
+        *)
+            warn "Please configure BIOS and run this script again."
+            echo ""
+            read -r -p "Press Enter to exit..."
+            exit 0
+            ;;
+    esac
 }
 
 # ============================================================================
@@ -201,7 +208,7 @@ backup_configs() {
             local dest="$BACKUP_DIR/$(basename "$config")"
             cp -r "$config" "$dest"
             log "Backed up: $config"
-            ((backed_up++))
+            ((backed_up++)) || true
         fi
     done
     
@@ -246,7 +253,7 @@ install_packages() {
     local failed_packages=()
     
     for pkg in "${PACKAGES[@]}"; do
-        if dpkg -l "$pkg" &> /dev/null; then
+        if dpkg -l "$pkg" &> /dev/null 2>&1; then
             log "Already installed: $pkg"
         else
             if sudo apt install -y "$pkg" >> "$LOG_FILE" 2>&1; then
@@ -282,12 +289,15 @@ install_fonts() {
     local cascadia_zip="/tmp/CascadiaCode.zip"
     
     if [[ ! -f "$fonts_dir/CascadiaCode-Regular.otf" ]]; then
-        curl -L -o "$cascadia_zip" "$cascadia_url" 2>/dev/null || wget -q -O "$cascadia_zip" "$cascadia_url"
-        unzip -q -o "$cascadia_zip" -d /tmp/CascadiaCode
-        cp /tmp/CascadiaCode/ttf/*.ttf "$fonts_dir/" 2>/dev/null || true
-        cp /tmp/CascadiaCode/otf/static/*.otf "$fonts_dir/" 2>/dev/null || true
-        rm -rf /tmp/CascadiaCode "$cascadia_zip"
-        success "Cascadia Code installed"
+        if curl -fsSL -o "$cascadia_zip" "$cascadia_url" 2>/dev/null || wget -q -O "$cascadia_zip" "$cascadia_url"; then
+            unzip -q -o "$cascadia_zip" -d /tmp/CascadiaCode
+            cp /tmp/CascadiaCode/ttf/*.ttf "$fonts_dir/" 2>/dev/null || true
+            cp /tmp/CascadiaCode/otf/static/*.otf "$fonts_dir/" 2>/dev/null || true
+            rm -rf /tmp/CascadiaCode "$cascadia_zip"
+            success "Cascadia Code installed"
+        else
+            warn "Failed to download Cascadia Code"
+        fi
     else
         log "Cascadia Code already installed"
     fi
@@ -298,18 +308,21 @@ install_fonts() {
     local jetbrains_zip="/tmp/JetBrainsMono.zip"
     
     if [[ ! -f "$fonts_dir/JetBrainsMono-Regular.ttf" ]]; then
-        curl -L -o "$jetbrains_zip" "$jetbrains_url" 2>/dev/null || wget -q -O "$jetbrains_zip" "$jetbrains_url"
-        unzip -q -o "$jetbrains_zip" -d /tmp/JetBrainsMono
-        cp /tmp/JetBrainsMono/fonts/ttf/*.ttf "$fonts_dir/" 2>/dev/null || true
-        rm -rf /tmp/JetBrainsMono "$jetbrains_zip"
-        success "JetBrains Mono installed"
+        if curl -fsSL -o "$jetbrains_zip" "$jetbrains_url" 2>/dev/null || wget -q -O "$jetbrains_zip" "$jetbrains_url"; then
+            unzip -q -o "$jetbrains_zip" -d /tmp/JetBrainsMono
+            cp /tmp/JetBrainsMono/fonts/ttf/*.ttf "$fonts_dir/" 2>/dev/null || true
+            rm -rf /tmp/JetBrainsMono "$jetbrains_zip"
+            success "JetBrains Mono installed"
+        else
+            warn "Failed to download JetBrains Mono"
+        fi
     else
         log "JetBrains Mono already installed"
     fi
     
     # Refresh font cache
     log "Refreshing font cache..."
-    fc-cache -fv >> "$LOG_FILE" 2>&1
+    fc-cache -fv >> "$LOG_FILE" 2>&1 || true
     success "Font cache updated"
 }
 
@@ -324,7 +337,7 @@ configure_hardware() {
     log "Configuring Pipewire audio..."
     if command -v pipewire &> /dev/null; then
         # Remove PulseAudio if present
-        if dpkg -l pulseaudio &> /dev/null; then
+        if dpkg -l pulseaudio &> /dev/null 2>&1; then
             log "Removing PulseAudio..."
             sudo apt remove -y pulseaudio pulseaudio-utils >> "$LOG_FILE" 2>&1 || true
         fi
@@ -346,7 +359,7 @@ configure_hardware() {
         warn "TLP not found. Install packages first."
     fi
     
-    # Configure swappiness
+    # Configure swappiness for better performance on SSD
     log "Configuring swappiness..."
     if ! grep -q "vm.swappiness=10" /etc/sysctl.conf 2>/dev/null; then
         echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf > /dev/null
@@ -361,6 +374,17 @@ configure_hardware() {
         log "Adding user to video group..."
         sudo usermod -aG video "$USER"
         success "Added to video group (re-login required)"
+    else
+        log "User already in video group"
+    fi
+    
+    # Add user to input group for input devices
+    if ! groups | grep -q input; then
+        log "Adding user to input group..."
+        sudo usermod -aG input "$USER"
+        success "Added to input group (re-login required)"
+    else
+        log "User already in input group"
     fi
     
     success "Hardware configuration complete"
@@ -378,76 +402,94 @@ deploy_configs() {
     mkdir -p "$HOME/projects"
     mkdir -p "$HOME/.screenlayout"
     
-    # Copy i3 config
+    # Deploy i3 config
     if [[ -f "$DOTFILES_DIR/config/i3/config" ]]; then
         cp "$DOTFILES_DIR/config/i3/config" "$CONFIG_DIR/i3/config"
         success "Deployed: i3 config"
+    else
+        warn "Missing: i3 config"
     fi
     
-    # Copy i3 scripts
+    # Deploy i3 scripts
     if [[ -d "$DOTFILES_DIR/config/i3/scripts" ]]; then
         cp "$DOTFILES_DIR/config/i3/scripts/"* "$CONFIG_DIR/i3/scripts/" 2>/dev/null || true
         chmod +x "$CONFIG_DIR/i3/scripts/"* 2>/dev/null || true
         success "Deployed: i3 scripts"
     fi
     
-    # Copy i3blocks config
+    # Deploy i3blocks config
     if [[ -f "$DOTFILES_DIR/config/i3blocks/config" ]]; then
         cp "$DOTFILES_DIR/config/i3blocks/config" "$CONFIG_DIR/i3blocks/config"
         success "Deployed: i3blocks config"
+    else
+        warn "Missing: i3blocks config"
     fi
     
-    # Copy Alacritty config
+    # Deploy Alacritty config
     if [[ -f "$DOTFILES_DIR/config/alacritty/alacritty.toml" ]]; then
         cp "$DOTFILES_DIR/config/alacritty/alacritty.toml" "$CONFIG_DIR/alacritty/alacritty.toml"
         success "Deployed: Alacritty config"
+    else
+        warn "Missing: Alacritty config"
     fi
     
-    # Copy Picom config
+    # Deploy Picom config
     if [[ -f "$DOTFILES_DIR/config/picom/picom.conf" ]]; then
         cp "$DOTFILES_DIR/config/picom/picom.conf" "$CONFIG_DIR/picom/picom.conf"
         success "Deployed: Picom config"
+    else
+        warn "Missing: Picom config"
     fi
     
-    # Copy Neovim config
+    # Deploy Neovim config
     if [[ -f "$DOTFILES_DIR/config/nvim/init.lua" ]]; then
         cp "$DOTFILES_DIR/config/nvim/init.lua" "$CONFIG_DIR/nvim/init.lua"
         success "Deployed: Neovim config"
+    else
+        warn "Missing: Neovim config"
     fi
     
-    # Copy lf config
+    # Deploy lf config
     if [[ -d "$DOTFILES_DIR/config/lf" ]]; then
         cp "$DOTFILES_DIR/config/lf/"* "$CONFIG_DIR/lf/" 2>/dev/null || true
         chmod +x "$CONFIG_DIR/lf/preview.sh" 2>/dev/null || true
         success "Deployed: lf config"
     fi
     
-    # Copy Rofi config
+    # Deploy Rofi config
     if [[ -f "$DOTFILES_DIR/config/rofi/config.rasi" ]]; then
         cp "$DOTFILES_DIR/config/rofi/config.rasi" "$CONFIG_DIR/rofi/config.rasi"
         success "Deployed: Rofi config"
+    else
+        warn "Missing: Rofi config"
     fi
     
-    # Copy Dunst config
+    # Deploy Dunst config
     if [[ -f "$DOTFILES_DIR/config/dunst/dunstrc" ]]; then
         cp "$DOTFILES_DIR/config/dunst/dunstrc" "$CONFIG_DIR/dunst/dunstrc"
         success "Deployed: Dunst config"
+    else
+        warn "Missing: Dunst config"
     fi
     
-    # Copy Zathura config
+    # Deploy Zathura config
     if [[ -f "$DOTFILES_DIR/config/zathura/zathurarc" ]]; then
         cp "$DOTFILES_DIR/config/zathura/zathurarc" "$CONFIG_DIR/zathura/zathurarc"
         success "Deployed: Zathura config"
+    else
+        warn "Missing: Zathura config"
     fi
     
-    # Copy GTK config
+    # Deploy GTK config
     if [[ -f "$DOTFILES_DIR/config/gtk-3.0/settings.ini" ]]; then
         cp "$DOTFILES_DIR/config/gtk-3.0/settings.ini" "$CONFIG_DIR/gtk-3.0/settings.ini"
         success "Deployed: GTK config"
+    else
+        warn "Missing: GTK config"
     fi
     
-    # Copy wallpapers
-    if [[ -d "$DOTFILES_DIR/wallpapers" ]]; then
+    # Deploy wallpapers
+    if [[ -d "$DOTFILES_DIR/wallpapers" ]] && [[ -n "$(ls -A "$DOTFILES_DIR/wallpapers" 2>/dev/null)" ]]; then
         cp "$DOTFILES_DIR/wallpapers/"* "$CONFIG_DIR/wallpapers/" 2>/dev/null || true
         success "Deployed: Wallpapers"
     fi
@@ -456,23 +498,45 @@ deploy_configs() {
     if [[ -f "$DOTFILES_DIR/shell/.zshrc" ]]; then
         ln -sf "$DOTFILES_DIR/shell/.zshrc" "$HOME/.zshrc"
         success "Symlinked: .zshrc"
+    else
+        warn "Missing: .zshrc"
     fi
     
     if [[ -f "$DOTFILES_DIR/shell/.zsh_aliases" ]]; then
         ln -sf "$DOTFILES_DIR/shell/.zsh_aliases" "$HOME/.zsh_aliases"
         success "Symlinked: .zsh_aliases"
+    else
+        warn "Missing: .zsh_aliases"
     fi
     
-    # Create monitor.sh template
+    # Create monitor.sh template if not exists
     if [[ ! -f "$HOME/.screenlayout/monitor.sh" ]]; then
         cat > "$HOME/.screenlayout/monitor.sh" << 'MONITOR_EOF'
 #!/bin/bash
 # Monitor layout script - customize with arandr
-# Default: Single display
+# Default: Single display (auto-detect)
 xrandr --auto
 MONITOR_EOF
         chmod +x "$HOME/.screenlayout/monitor.sh"
         success "Created: monitor.sh template"
+    fi
+    
+    # Create .xinitrc if not exists
+    if [[ ! -f "$HOME/.xinitrc" ]]; then
+        cat > "$HOME/.xinitrc" << 'XINITRC_EOF'
+#!/bin/sh
+# Source system profile
+[ -f /etc/profile ] && . /etc/profile
+[ -f "$HOME/.profile" ] && . "$HOME/.profile"
+
+# Set keyboard repeat rate
+xset r rate 300 50 &
+
+# Start i3
+exec i3
+XINITRC_EOF
+        chmod +x "$HOME/.xinitrc"
+        success "Created: .xinitrc"
     fi
     
     success "Configuration deployment complete"
@@ -485,11 +549,20 @@ MONITOR_EOF
 configure_shell() {
     header "Configuring Shell"
     
+    # Check if zsh exists
+    if ! command -v zsh &> /dev/null; then
+        warn "Zsh not found. Install packages first."
+        return 1
+    fi
+    
     # Set Zsh as default shell
     if [[ "$SHELL" != "/bin/zsh" && "$SHELL" != "/usr/bin/zsh" ]]; then
         log "Setting Zsh as default shell..."
-        chsh -s /bin/zsh
-        success "Zsh set as default shell (takes effect on next login)"
+        if chsh -s "$(which zsh)"; then
+            success "Zsh set as default shell (takes effect on next login)"
+        else
+            warn "Failed to change shell. You may need to run: chsh -s $(which zsh)"
+        fi
     else
         log "Zsh is already the default shell"
     fi
@@ -593,8 +666,8 @@ full_install() {
     echo -e "${GREEN}║  2. Run 'startx' to start i3                                 ║${NC}"
     echo -e "${GREEN}║  3. Use Mod+Shift+c to reload config after changes          ║${NC}"
     echo -e "${GREEN}║                                                              ║${NC}"
-    echo -e "${GREEN}║  Backup location: $BACKUP_DIR${NC}"
-    echo -e "${GREEN}║  Log file: $LOG_FILE${NC}"
+    echo -e "${GREEN}║  Backup location: ${BACKUP_DIR}${NC}"
+    echo -e "${GREEN}║  Log file: ${LOG_FILE}${NC}"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
 }
 
@@ -603,6 +676,9 @@ full_install() {
 # ============================================================================
 
 main() {
+    # Initialize log file
+    touch "$LOG_FILE" 2>/dev/null || true
+    
     check_root
     
     case "${1:-}" in
