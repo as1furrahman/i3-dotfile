@@ -1,0 +1,308 @@
+# ============================================================================
+# i3 Configuration - Debian 13 + Zenbook S 13 OLED
+# Tokyo Night Theme
+# ============================================================================
+
+# ============================================================================
+# CORE SETTINGS
+# ============================================================================
+
+set $mod Mod4
+
+# Font
+font pango:Cascadia Code 11
+
+# Window behavior
+floating_modifier $mod
+focus_follows_mouse no
+mouse_warping none
+popup_during_fullscreen smart
+
+# Gaps and borders
+gaps inner 5
+gaps outer 5
+smart_borders on
+smart_gaps on
+default_border pixel 1
+default_floating_border pixel 1
+
+# ============================================================================
+# VARIABLES
+# ============================================================================
+
+set $term alacritty
+set $editor nvim
+set $filemgr lf
+set $monitor btop
+set $launcher rofi -modi drun -show drun -line-padding 4 -columns 2 -padding 50 -hide-scrollbar -show-icons -drun-icon-theme "Papirus-Dark" -font "Cascadia Code 11"
+
+# Workspaces
+set $ws1 "1:term"
+set $ws2 "2:web"
+set $ws3 "3:code"
+set $ws4 "4:mon"
+set $ws5 "5:files"
+set $ws6 "6:media"
+set $ws7 "7:misc"
+set $ws8 "8:vm"
+set $ws9 "9:chat"
+set $ws10 "10:extra"
+
+# ============================================================================
+# TOKYO NIGHT COLORS
+# ============================================================================
+
+set $bg         #1a1b26
+set $bg_dark    #16161e
+set $bg_hl      #292e42
+set $fg         #c0caf5
+set $fg_dark    #a9b1d6
+set $accent     #7aa2f7
+set $red        #f7768e
+set $green      #9ece6a
+set $yellow     #e0af68
+set $blue       #7aa2f7
+set $magenta    #bb9af7
+set $cyan       #7dcfff
+
+# Window colors
+#                       border      background  text        indicator   child_border
+client.focused          $accent     $bg_hl      $fg         $accent     $accent
+client.focused_inactive $bg_hl      $bg         $fg_dark    $bg_hl      $bg_hl
+client.unfocused        $bg_dark    $bg_dark    $fg_dark    $bg_dark    $bg_dark
+client.urgent           $red        $red        $fg         $red        $red
+client.placeholder      $bg_dark    $bg_dark    $fg_dark    $bg_dark    $bg_dark
+client.background       $bg
+
+# ============================================================================
+# KEYBINDINGS - CORE
+# ============================================================================
+
+# Terminal
+bindsym $mod+Return exec $term
+bindsym $mod+Shift+Return exec $term --title="floating-term"
+
+# Close window
+bindsym $mod+c kill
+
+# Reload/Restart
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+
+# Power menu
+bindsym $mod+Shift+e exec --no-startup-id "$HOME/.config/i3/scripts/powermenu.sh"
+
+# Lock screen
+bindsym $mod+l exec --no-startup-id "$HOME/.config/i3/scripts/blur-lock"
+
+# ============================================================================
+# KEYBINDINGS - NAVIGATION
+# ============================================================================
+
+# Focus (vim-style: j=left, k=down, b=up, o=right)
+bindsym $mod+j focus left
+bindsym $mod+k focus down
+bindsym $mod+b focus up
+bindsym $mod+o focus right
+
+# Focus (arrow keys)
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# Move (vim-style)
+bindsym $mod+Shift+j move left
+bindsym $mod+Shift+k move down
+bindsym $mod+Shift+b move up
+bindsym $mod+Shift+o move right
+
+# Move (arrow keys)
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# Split
+bindsym $mod+h split h
+bindsym $mod+v split v
+
+# Fullscreen
+bindsym $mod+f fullscreen toggle
+
+# Layouts
+bindsym $mod+s layout stacking
+bindsym $mod+g layout tabbed
+bindsym $mod+e layout toggle split
+
+# Floating
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+
+# ============================================================================
+# KEYBINDINGS - HARDWARE (Zenbook)
+# ============================================================================
+
+# Volume
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
+# Brightness
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+
+# ============================================================================
+# KEYBINDINGS - APPLICATIONS
+# ============================================================================
+
+# Launchers
+bindsym F9 exec --no-startup-id $launcher
+bindsym F10 exec --no-startup-id rofi -show window -font "Cascadia Code 11"
+bindsym $mod+Shift+d exec --no-startup-id rofi -show run -font "Cascadia Code 11"
+
+# File managers
+bindsym $mod+n exec $term -e $filemgr
+bindsym $mod+Shift+f exec --no-startup-id thunar
+
+# System monitor
+bindsym $mod+Shift+m exec $term -e $monitor
+
+# Password manager
+bindsym $mod+p exec $term -e pass
+
+# Projects folder
+bindsym $mod+g exec $term -e zsh -ic "cd ~/projects && zsh"
+
+# Browser
+bindsym $mod+Shift+b exec --no-startup-id firefox-esr
+
+# Screenshot
+bindsym Print exec --no-startup-id "$HOME/.config/i3/scripts/screenshot.sh"
+
+# Config editing
+bindsym $mod+F1 exec $term -e $editor ~/.config/i3/config
+bindsym $mod+F2 exec $term -e $editor ~/.config/alacritty/alacritty.toml
+bindsym $mod+F3 exec $term -e $editor ~/.zshrc
+
+# ============================================================================
+# WORKSPACES
+# ============================================================================
+
+# Switch to workspace
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+bindsym $mod+6 workspace $ws6
+bindsym $mod+7 workspace $ws7
+bindsym $mod+8 workspace $ws8
+bindsym $mod+9 workspace $ws9
+bindsym $mod+0 workspace $ws10
+
+# Move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+bindsym $mod+Shift+6 move container to workspace $ws6
+bindsym $mod+Shift+7 move container to workspace $ws7
+bindsym $mod+Shift+8 move container to workspace $ws8
+bindsym $mod+Shift+9 move container to workspace $ws9
+bindsym $mod+Shift+0 move container to workspace $ws10
+
+# ============================================================================
+# WINDOW RULES
+# ============================================================================
+
+for_window [class="Alacritty"] border pixel 1
+for_window [title="floating-term"] floating enable, resize set 900 600, move position center
+for_window [class="Thunar"] floating enable, resize set 900 600, move position center
+for_window [class="Pavucontrol"] floating enable, resize set 800 500, move position center
+for_window [class="Nm-connection-editor"] floating enable
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [class="feh"] floating enable
+for_window [urgent=latest] focus
+
+# ============================================================================
+# RESIZE MODE
+# ============================================================================
+
+mode "resize" {
+    # Vim-style
+    bindsym j resize shrink width 10 px or 10 ppt
+    bindsym k resize grow height 10 px or 10 ppt
+    bindsym b resize shrink height 10 px or 10 ppt
+    bindsym o resize grow width 10 px or 10 ppt
+
+    # Arrow keys
+    bindsym Left resize shrink width 10 px or 10 ppt
+    bindsym Down resize grow height 10 px or 10 ppt
+    bindsym Up resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow width 10 px or 10 ppt
+
+    # Exit resize mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+r mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+# ============================================================================
+# STATUS BAR
+# ============================================================================
+
+bar {
+    status_command i3blocks
+    position top
+    font pango:Cascadia Code, Symbols Nerd Font 11
+    
+    colors {
+        background $bg
+        statusline $fg
+        separator  $bg_hl
+
+        #                  border      background  text
+        focused_workspace  $accent     $accent     $bg
+        active_workspace   $bg_hl      $bg_hl      $fg
+        inactive_workspace $bg         $bg         $fg_dark
+        urgent_workspace   $red        $red        $fg
+        binding_mode       $magenta    $magenta    $fg
+    }
+}
+
+# ============================================================================
+# AUTOSTART
+# ============================================================================
+
+# Wallpaper
+exec_always --no-startup-id feh --bg-fill "$HOME/.config/wallpapers/tokyo-night.png"
+
+# Monitor layout
+exec --no-startup-id "$HOME/.screenlayout/monitor.sh"
+
+# Compositor
+exec --no-startup-id picom --config ~/.config/picom/picom.conf
+
+# Notifications
+exec --no-startup-id dunst
+
+# Clipboard manager
+exec --no-startup-id clipman store
+
+# Network applet
+exec --no-startup-id nm-applet
+
+# Auto lock
+exec --no-startup-id xautolock -time 5 -locker "$HOME/.config/i3/scripts/blur-lock"
+
+# Autostart applications
+exec --no-startup-id dex --autostart --environment i3
+
+# Open terminal on workspace 1
+exec --no-startup-id i3-msg 'workspace $ws1; exec $term'

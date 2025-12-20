@@ -1,0 +1,94 @@
+/* Rofi Configuration - Tokyo Night */
+
+configuration {
+    modi: "drun,run,window";
+    font: "Cascadia Code 11";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    terminal: "alacritty";
+    drun-display-format: "{name}";
+    location: 0;
+    disable-history: false;
+    hide-scrollbar: true;
+    sidebar-mode: false;
+}
+
+* {
+    bg:         #1a1b26;
+    bg-alt:     #1f2335;
+    bg-hl:      #292e42;
+    fg:         #c0caf5;
+    fg-alt:     #a9b1d6;
+    accent:     #7aa2f7;
+    urgent:     #f7768e;
+    
+    background-color: @bg;
+    text-color: @fg;
+}
+
+window {
+    width: 50%;
+    padding: 20px;
+    border: 2px;
+    border-color: @accent;
+    border-radius: 8px;
+}
+
+mainbox {
+    children: [inputbar, listview];
+    spacing: 10px;
+}
+
+inputbar {
+    children: [prompt, entry];
+    padding: 10px;
+    background-color: @bg-alt;
+    border-radius: 4px;
+}
+
+prompt {
+    enabled: true;
+    padding: 0 10px 0 0;
+    text-color: @accent;
+}
+
+entry {
+    placeholder: "Search...";
+    placeholder-color: @fg-alt;
+}
+
+listview {
+    lines: 12;
+    columns: 2;
+    spacing: 5px;
+    scrollbar: false;
+}
+
+element {
+    padding: 8px;
+    border-radius: 4px;
+}
+
+element normal.normal {
+    background-color: @bg;
+    text-color: @fg;
+}
+
+element selected.normal {
+    background-color: @accent;
+    text-color: @bg;
+}
+
+element alternate.normal {
+    background-color: @bg;
+    text-color: @fg;
+}
+
+element-icon {
+    size: 24px;
+    padding: 0 10px 0 0;
+}
+
+element-text {
+    vertical-align: 0.5;
+}

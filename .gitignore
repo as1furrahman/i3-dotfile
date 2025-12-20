@@ -1,0 +1,28 @@
+# Logs
+*.log
+
+# Backup files
+*~
+*.bak
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.code-workspace
+.vscode/
+.idea/
+
+# Temporary files
+/tmp/
+*.tmp
+
+# Local config overrides
+*.local
+
+# Compiled files
+*.pyc
+__pycache__/

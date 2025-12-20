@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+#
+# Lock screen with blurred screenshot background
+# Requires: maim, imagemagick, i3lock
+#
+
+set -e
+
+# Temporary files
+SCREENSHOT="/tmp/lockscreen.png"
+BLURRED="/tmp/lockscreen_blur.png"
+
+# Colors (Tokyo Night)
+BLANK='#00000000'
+CLEAR='#ffffff22'
+DEFAULT='#7aa2f7cc'
+TEXT='#c0caf5ee'
+WRONG='#f7768ebb'
+VERIFYING='#9ece6abb'
+
+# Take screenshot
+maim "$SCREENSHOT"
+
+# Blur screenshot
+convert "$SCREENSHOT" -blur 0x8 "$BLURRED"
+
+# Lock with i3lock
+i3lock \
+    --image="$BLURRED" \
+    --inside-color=$BLANK \
+    --ring-color=$DEFAULT \
+    --line-uses-inside \
+    --keyhl-color=$VERIFYING \
+    --bshl-color=$WRONG \
+    --separator-color=$BLANK \
+    --insidever-color=$BLANK \
+    --insidewrong-color=$WRONG \
+    --ringver-color=$VERIFYING \
+    --ringwrong-color=$WRONG \
+    --ind-pos="x+960:y+540" \
+    --radius=20 \
+    --ring-width=4 \
+    --nofork
+
+# Cleanup
+rm -f "$SCREENSHOT" "$BLURRED"
