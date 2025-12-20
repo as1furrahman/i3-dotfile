@@ -29,15 +29,10 @@ create_containers() {
     distrobox create --name thesis --image ubuntu:24.04 --yes || true
     success "Created 'thesis'"
 
-    # Container 2: MLAI (Arch Linux)
-    log "Creating 'mlai' container (Arch Linux)..."
-    distrobox create --name mlai --image archlinux:latest --yes || true
-    success "Created 'mlai'"
-
-    # Container 3: MATLAB (Ubuntu 22.04)
-    log "Creating 'matlab' container (Ubuntu 22.04)..."
-    distrobox create --name matlab --image ubuntu:22.04 --yes || true
-    success "Created 'matlab'"
+    # Container 2: Model Testing (Arch Linux)
+    log "Creating 'model_testing' container (Arch Linux)..."
+    distrobox create --name model_testing --image archlinux:latest --yes || true
+    success "Created 'model_testing'"
 }
 
 # Main execution
