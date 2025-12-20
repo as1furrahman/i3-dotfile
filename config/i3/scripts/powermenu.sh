@@ -1,34 +1,65 @@
-#!/usr/bin/env bash
-#
-# Power menu for i3 using Rofi
-# Options: Lock, Logout, Reboot, Shutdown
-#
+#!/bin/bash
 
-set -e
+# Rofi Power Menu
+# Dependencies: rofi, i3lock (or blur-lock.sh)
 
-# Menu options
-OPTIONS="󰌾 Lock\n󰍃 Logout\n󰜉 Reboot\n󰐥 Shutdown"
+# Options
+lock="󰒳 Lock"
+suspend="󰒲 Suspend"
+hibernate="🌙 Hibernate"
+logout="󰍃 Logout"
+reboot="󱐋 Reboot"
+shutdown="󰐥 Shutdown"
 
 # Rofi command
-ROFI_CMD="rofi -dmenu -i -p 'Power' -font 'Cascadia Code 12' -lines 4 -width 200"
+rofi_cmd() {
+	rofi -dmenu \
+		-i \
+		-p "Power" \
+		-theme-str 'window {width: 250px;} listview {lines: 6;}'
+}
 
-# Show menu and get selection
-CHOICE=$(echo -e "$OPTIONS" | $ROFI_CMD)
+# Pass variables to rofi dmenu
+run_rofi() {
+	echo -e "$lock\n$suspend\n$hibernate\n$logout\n$reboot\n$shutdown" | rofi_cmd
+}
 
-case "$CHOICE" in
-    *Lock*)
-        "$HOME/.config/i3/scripts/blur-lock"
+# Execute command
+run_cmd() {
+	if [[ "$1" == "--opt1" ]]; then
+		"$HOME/.config/i3/scripts/blur-lock.sh"
+	elif [[ "$1" == "--opt2" ]]; then
+		systemctl suspend
+	elif [[ "$1" == "--opt3" ]]; then
+        systemctl hibernate
+	elif [[ "$1" == "--opt4" ]]; then
+		i3-msg exit
+	elif [[ "$1" == "--opt5" ]]; then
+		systemctl reboot
+	elif [[ "$1" == "--opt6" ]]; then
+		systemctl poweroff
+	fi
+}
+
+# Actions
+chosen="$(run_rofi)"
+case ${chosen} in
+    $lock)
+		run_cmd --opt1
         ;;
-    *Logout*)
-        i3-msg exit
+    $suspend)
+		run_cmd --opt2
         ;;
-    *Reboot*)
-        systemctl reboot
+    $hibernate)
+        run_cmd --opt3
         ;;
-    *Shutdown*)
-        systemctl poweroff
+    $logout)
+		run_cmd --opt4
         ;;
-    *)
-        exit 0
+    $reboot)
+		run_cmd --opt5
+        ;;
+    $shutdown)
+		run_cmd --opt6
         ;;
 esac

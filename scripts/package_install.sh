@@ -1,38 +1,150 @@
-#!/usr/bin/env bash
-# Package installation script for Debian 13
-
+#!/bin/bash
 set -e
 
-PACKAGES=(
-    xorg xinit i3-wm i3blocks i3lock suckless-tools
-    alacritty picom feh xautolock maim xclip brightnessctl
-    thunar lf btop htop neovim micro rofi dunst clipman
-    zsh zsh-autosuggestions zsh-syntax-highlighting
+# ============================================================================
+# Package Installer
+# ============================================================================
+
+# Colors
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+LOG_FILE="/tmp/dotfiles_install_$(date +%Y%m%d_%H%M%S).log"
+
+log() { echo -e "${BLUE}[INFO]${NC} $1"; }
+success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+warn() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+error() { echo -e "${RED}[ERROR]${NC} $1"; }
+
+# Packages to install
+readonly PACKAGES=(
+    # X11 and i3
+    xorg xinit i3-wm i3blocks i3lock-fancy picom
+    # Terminal and tools
+    alacritty zsh zsh-autosuggestions zsh-syntax-highlighting
+    # File managers
+    thunar lf
+    # System monitors
+    btop htop
+    # Editors
+    neovim micro
+    # Launcher and notifications
+    rofi dunst clipman
+    # Applications
     pass zathura firefox-esr evince
+    # Audio (Pipewire)
     pipewire pipewire-pulse wireplumber pavucontrol
+    # Firmware and drivers
     firmware-linux firmware-linux-nonfree firmware-amd-graphics
     firmware-sof-signed firmware-iwlwifi
-    bluez network-manager tlp tlp-rdw powertop
-    fonts-noto-color-emoji papirus-icon-theme arc-theme
-    dex arandr imagemagick curl wget git unzip
+    # System
+    bluez network-manager tlp tlp-rdw powertop power-profiles-daemon systemd-suspend
+    # Fonts and themes
+    fonts-cascadia-code fonts-jetbrains-mono fonts-firacode
+    fonts-noto-core fonts-noto-color-emoji
+    fonts-liberation2 fonts-dejavu-core
+    fonts-font-awesome papirus-icon-theme arc-theme
+    # Utilities
+    dex arandr imagemagick curl wget git unzip fontconfig
+    xautolock maim xclip brightnessctl
+    bat ripgrep fd-find build-essential gfortran cmake
+    podman distrobox
 )
 
-echo "==========================================="
-echo "  Installing packages..."
-echo "==========================================="
-
-# Update sources
-sudo apt update
-
-# Install packages
-for pkg in "${PACKAGES[@]}"; do
-    if dpkg -l "$pkg" &>/dev/null; then
-        echo "[SKIP] $pkg already installed"
+enable_repositories() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Enabling Repositories${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    # Update sources.list to include non-free components
+    if ! grep -q "non-free-firmware" /etc/apt/sources.list; then
+        log "Adding contrib, non-free, and non-free-firmware to sources.list..."
+        sudo sed -i -r 's/main( contrib)?( non-free)?/main contrib non-free non-free-firmware/' /etc/apt/sources.list
+        success "Repositories updated"
     else
-        echo "[INSTALL] $pkg"
-        sudo apt install -y "$pkg" || echo "[FAIL] $pkg"
+        log "Non-free repositories already enabled."
     fi
-done
+}
 
-echo ""
-echo "Package installation complete!"
+install_packages() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Installing Packages${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    log "Updating package lists..."
+    sudo apt update
+    
+    log "Installing packages..."
+    local failed_packages=()
+    
+    for pkg in "${PACKAGES[@]}"; do
+        if dpkg -l "$pkg" &> /dev/null 2>&1; then
+            log "Already installed: $pkg"
+        else
+            if output=$(sudo apt install -y "$pkg" 2>&1); then
+                echo "$output" >> "$LOG_FILE"
+                success "Installed: $pkg"
+            else
+                echo "$output" >> "$LOG_FILE"
+                warn "Failed to install: $pkg"
+                echo -e "${RED}Error details for $pkg:${NC}"
+                echo "$output" | tail -n 5 | sed 's/^/  /'
+                failed_packages+=("$pkg")
+            fi
+        fi
+    done
+    
+    if [[ ${#failed_packages[@]} -gt 0 ]]; then
+        warn "Some packages failed to install: ${failed_packages[*]}"
+    else
+        success "All packages installed successfully"
+    fi
+}
+
+install_fonts() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Installing Additional Fonts${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    # Manual install for latest Cascadia Code if desired, but package is often sufficient.
+    # We will verify if the package version is good enough, but for "latest" from GitHub:
+    
+    local fonts_dir="$HOME/.local/share/fonts"
+    mkdir -p "$fonts_dir"
+    
+    # Check if Cascadia is installed via apt or manually
+    if ! fc-list | grep -qi "Cascadia Code"; then
+         log "Downloading latest Cascadia Code from GitHub..."
+         local cascadia_url="https://github.com/microsoft/cascadia-code/releases/download/v2404.23/CascadiaCode-2404.23.zip"
+         local cascadia_zip="/tmp/CascadiaCode.zip"
+         
+         if curl -fsSL -o "$cascadia_zip" "$cascadia_url"; then
+             unzip -q -o "$cascadia_zip" -d /tmp/CascadiaCode
+             cp /tmp/CascadiaCode/ttf/*.ttf "$fonts_dir/" 2>/dev/null || true
+             cp /tmp/CascadiaCode/otf/static/*.otf "$fonts_dir/" 2>/dev/null || true
+             rm -rf /tmp/CascadiaCode "$cascadia_zip"
+             success "Cascadia Code installed manually"
+         else
+             warn "Failed to download Cascadia Code. Using apt version if available."
+         fi
+    else
+         log "Cascadia Code is already installed."
+    fi
+    
+    log "Refreshing font cache..."
+    fc-cache -fv >> "$LOG_FILE" 2>&1 || true
+    success "Font cache updated"
+}
+
+# Main execution
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    enable_repositories
+    install_packages
+    install_fonts
+fi

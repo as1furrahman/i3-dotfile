@@ -1,91 +1,47 @@
-# Zsh Configuration
+# Enable Powerlevel10k instant prompt if available (optional, disabled for minimal)
+# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# fi
 
-# ============================================================================
-# HISTORY
-# ============================================================================
-
-HISTFILE=~/.zsh_history
+# History
+HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=10000
+setopt SHARE_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_SPACE
 setopt HIST_SAVE_NO_DUPS
-setopt SHARE_HISTORY
-setopt APPEND_HISTORY
-setopt INC_APPEND_HISTORY
+setopt HIST_REDUCE_BLANKS
 
-# ============================================================================
-# ENVIRONMENT
-# ============================================================================
+# Environment
+export EDITOR='nvim'
+export VISUAL='nvim'
+export TERMINAL='alacritty'
+export BROWSER='firefox-esr'
+export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
-export EDITOR="nvim"
-export VISUAL="nvim"
-export TERMINAL="alacritty"
-export BROWSER="firefox-esr"
-export PAGER="less"
-export LANG="en_US.UTF-8"
-export LC_ALL="en_US.UTF-8"
+# Completions
+autoload -Uz compinit
+compinit
 
-# Path
-export PATH="$HOME/.local/bin:$PATH"
+# Prompt (Minimal)
+PROMPT='%F{blue}[%n@%m:%~]$ %f'
 
-# ============================================================================
-# OPTIONS
-# ============================================================================
+# Aliases
+source "$HOME/.zsh_aliases"
 
-setopt AUTO_CD
-setopt AUTO_PUSHD
-setopt PUSHD_IGNORE_DUPS
-setopt CORRECT
-setopt INTERACTIVE_COMMENTS
-setopt NO_BEEP
+# Syntax Highlighting & Autosuggestions (Debian packages)
+if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
 
-# ============================================================================
-# PROMPT
-# ============================================================================
-
-autoload -Uz colors && colors
-PROMPT='%F{blue}[%f%F{cyan}%n%f%F{blue}@%f%F{cyan}%m%f%F{blue}:%f%F{yellow}%~%f%F{blue}]%f %F{magenta}$%f '
-
-# ============================================================================
-# COMPLETIONS
-# ============================================================================
-
-autoload -Uz compinit && compinit
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
-zstyle ':completion:*' completer _complete _approximate
-zstyle ':completion:*:descriptions' format '%F{yellow}-- %d --%f'
-
-# ============================================================================
-# KEY BINDINGS
-# ============================================================================
-
+# Keybindings
 bindkey -e
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
-bindkey '^[[H' beginning-of-line
-bindkey '^[[F' end-of-line
-bindkey '^[[3~' delete-char
-bindkey '^[[1;5C' forward-word
-bindkey '^[[1;5D' backward-word
-
-# ============================================================================
-# ALIASES
-# ============================================================================
-
-[[ -f ~/.zsh_aliases ]] && source ~/.zsh_aliases
-
-# ============================================================================
-# PLUGINS
-# ============================================================================
-
-# Autosuggestions
-[[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
-    source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-
-# Syntax highlighting (must be last)
-[[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
-    source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

@@ -1,98 +1,28 @@
-# Zsh Aliases
-
-# ============================================================================
-# CORE
-# ============================================================================
-
+# General
 alias v='nvim'
 alias m='micro'
 alias f='lf'
-alias c='clear'
-alias q='exit'
-
-# ============================================================================
-# NAVIGATION
-# ============================================================================
-
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias ~='cd ~'
-alias -- -='cd -'
-
-# ============================================================================
-# LISTING
-# ============================================================================
-
-alias ls='ls --color=auto'
 alias ll='ls -lah'
 alias la='ls -A'
 alias l='ls -CF'
-alias lt='ls -lahtr'
-alias lS='ls -lahS'
+alias c='clear'
+alias q='exit'
 
-# ============================================================================
-# FILE OPERATIONS
-# ============================================================================
-
-alias cp='cp -iv'
-alias mv='mv -iv'
-alias rm='rm -iv'
-alias mkdir='mkdir -pv'
-
-# ============================================================================
-# GIT
-# ============================================================================
-
+# Git
 alias gs='git status'
 alias ga='git add'
-alias gaa='git add --all'
-alias gc='git commit -m'
+alias gc='git commit'
 alias gp='git push'
 alias gl='git pull'
 alias gd='git diff'
-alias gco='git checkout'
-alias gb='git branch'
-alias glog='git log --oneline --graph --decorate -10'
 
-# ============================================================================
-# SYSTEM
-# ============================================================================
-
-alias df='df -h'
-alias du='du -h'
-alias free='free -h'
+# System
 alias top='btop'
-alias htop='htop'
-alias ps='ps auxf'
-alias psg='ps aux | grep -v grep | grep -i'
-
-# ============================================================================
-# APT
-# ============================================================================
-
+alias cat='bat --theme=TwoDark 2>/dev/null || cat'
+alias projects='cd ~/projects'
 alias update='sudo apt update && sudo apt upgrade'
-alias install='sudo apt install'
-alias remove='sudo apt remove'
-alias search='apt search'
+alias cleanup='sudo apt autoremove && sudo apt autoclean'
 
-# ============================================================================
-# CONFIG SHORTCUTS
-# ============================================================================
-
-alias i3conf='$EDITOR ~/.config/i3/config'
-alias zshrc='$EDITOR ~/.zshrc'
-alias aliases='$EDITOR ~/.zsh_aliases'
-alias alacrittyconf='$EDITOR ~/.config/alacritty/alacritty.toml'
-alias nvimconf='$EDITOR ~/.config/nvim/init.lua'
-
-# ============================================================================
-# MISC
-# ============================================================================
-
-alias grep='grep --color=auto'
-alias diff='diff --color=auto'
-alias ip='ip -color=auto'
-alias weather='curl wttr.in'
-alias myip='curl ifconfig.me'
-alias reload='source ~/.zshrc'
+# Config editing
+alias i3config='$EDITOR ~/.config/i3/config'
+alias zshconfig='$EDITOR ~/.zshrc'

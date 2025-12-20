@@ -1,20 +1,29 @@
-#!/usr/bin/env bash
-#
-# Screenshot utility
-# Captures selected area and copies to clipboard
-# Requires: maim, xclip
-#
+#!/bin/bash
 
-set -e
+# Screenshot wrapper using maim
+# Dependencies: maim, xclip, rofi (optional for menu)
 
-# Take screenshot of selected area and copy to clipboard
-maim -s | xclip -selection clipboard -t image/png
+SCREENSHOT_DIR="$HOME/Pictures/Screenshots"
+mkdir -p "$SCREENSHOT_DIR"
 
-# Optional: Also save to file
-# SCREENSHOTS_DIR="$HOME/Pictures/Screenshots"
-# mkdir -p "$SCREENSHOTS_DIR"
-# FILENAME="$SCREENSHOTS_DIR/screenshot_$(date +%Y%m%d_%H%M%S).png"
-# xclip -selection clipboard -t image/png -o > "$FILENAME"
+TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+FILENAME="$SCREENSHOT_DIR/screenshot_$TIMESTAMP.png"
 
-# Notify user
-notify-send "Screenshot" "Copied to clipboard" -t 2000
+# Check arguments
+if [[ "$1" == "select" ]]; then
+    # Select area/window
+    maim -s -u "$FILENAME"
+elif [[ "$1" == "clipboard" ]]; then
+    # Copy to clipboard
+    maim -s -u | xclip -selection clipboard -t image/png
+else
+    # Full screen
+    maim "$FILENAME"
+fi
+
+# Notify (if notify-send is available)
+if command -v notify-send &> /dev/null; then
+    if [[ -f "$FILENAME" ]]; then
+        notify-send "Screenshot Saved" "Saved to $FILENAME" -i "$FILENAME"
+    fi
+fi

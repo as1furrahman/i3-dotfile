@@ -1,71 +1,90 @@
-#!/usr/bin/env bash
-# Hardware setup for Asus Zenbook S 13 OLED (UM5302TA)
-
+#!/bin/bash
 set -e
 
-RED='\033[0;31m'
+# ============================================================================
+# Hardware Configuration (Asus Zenbook S 13 OLED)
+# ============================================================================
+
+# Colors
+BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-log() { echo -e "${GREEN}[INFO]${NC} $1"; }
+LOG_FILE="/tmp/dotfiles_install_$(date +%Y%m%d_%H%M%S).log"
+
+log() { echo -e "${BLUE}[INFO]${NC} $1"; }
+success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
-error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 
-echo "==========================================="
-echo "  Zenbook S 13 OLED Hardware Setup"
-echo "==========================================="
+configure_pipewire() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Configuring Pipewire Audio${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    log "Checking Pipewire status..."
+    if command -v pipewire &> /dev/null; then
+        # Remove PulseAudio if present
+        if dpkg -l pulseaudio &> /dev/null 2>&1; then
+            log " removing PulseAudio to prevent conflicts (purging)..."
+            sudo apt purge -y pulseaudio pulseaudio-utils >> "$LOG_FILE" 2>&1 || true
+        fi
+        
+        # Enable Pipewire services
+        log "Enabling Pipewire services..."
+        systemctl --user enable --now pipewire pipewire-pulse wireplumber 2>/dev/null || true
+        success "Pipewire configured"
+    else
+        warn "Pipewire not installed. Skipping."
+    fi
+}
 
-# Check if running as regular user
-[[ $EUID -eq 0 ]] && error "Run as regular user, not root"
+configure_power() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Configuring Power Management${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    # TLP
+    if command -v tlp &> /dev/null; then
+        log "Enabling TLP..."
+        sudo systemctl enable --now tlp >> "$LOG_FILE" 2>&1 || true
+        success "TLP enabled"
+    fi
+    
+    # Swappiness
+    log "Configuring swappiness..."
+    if ! grep -q "vm.swappiness=10" /etc/sysctl.conf 2>/dev/null; then
+        echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf > /dev/null
+        sudo sysctl -p >> "$LOG_FILE" 2>&1 || true
+        success "Swappiness set to 10"
+    else
+        log "Swappiness already configured"
+    fi
+}
 
-# Pipewire check
-log "Checking Pipewire..."
-if systemctl --user is-active pipewire &>/dev/null; then
-    log "Pipewire is running"
-else
-    warn "Pipewire not running. Starting..."
-    systemctl --user enable --now pipewire pipewire-pulse wireplumber || true
+hardware_report() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Hardware Status Report${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    echo "Audio Server: $(pactl info 2>/dev/null | grep "Server Name" || echo "Unknown")"
+    echo "Power Mgmt:   $(systemctl is-active tlp)"
+    echo "Swappiness:   $(cat /proc/sys/vm/swappiness)"
+    echo ""
+    log "Testing audio (5s white noise)..."
+    if timeout 5s speaker-test -c2 -t pink >/dev/null 2>&1; then
+        success "Audio test completed (Pink noise)"
+    else
+        warn "Audio test skipped or failed"
+    fi
+}
+
+# Main execution
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    configure_pipewire
+    configure_power
+    hardware_report
 fi
-
-# Remove PulseAudio if present
-if dpkg -l pulseaudio &>/dev/null 2>&1; then
-    log "Removing PulseAudio..."
-    sudo apt remove -y pulseaudio pulseaudio-utils || true
-fi
-
-# TLP
-log "Configuring TLP..."
-if command -v tlp &>/dev/null; then
-    sudo systemctl enable tlp || true
-    sudo systemctl start tlp || true
-    log "TLP enabled"
-else
-    warn "TLP not installed"
-fi
-
-# Swappiness
-log "Configuring swappiness..."
-if ! grep -q "vm.swappiness=10" /etc/sysctl.conf 2>/dev/null; then
-    echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
-    sudo sysctl -p
-fi
-
-# Video group for brightness
-if ! groups | grep -q video; then
-    log "Adding user to video group..."
-    sudo usermod -aG video "$USER"
-    warn "Log out and back in for brightness control"
-fi
-
-# Audio test
-log "Testing audio (2 second test)..."
-if command -v speaker-test &>/dev/null; then
-    timeout 2 speaker-test -c2 -t wav &>/dev/null || true
-    log "Audio test complete"
-fi
-
-echo ""
-echo "==========================================="
-echo "  Hardware setup complete!"
-echo "==========================================="
