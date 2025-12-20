@@ -299,7 +299,10 @@ exec --no-startup-id clipman store
 exec --no-startup-id nm-applet
 
 # Auto lock
-exec --no-startup-id xautolock -time 5 -locker "$HOME/.config/i3/scripts/blur-lock.sh"
+# Auto lock (xss-lock listens to systemd suspend system-sleep and X idle)
+exec --no-startup-id xss-lock --transfer-sleep-lock -- "$HOME/.config/i3/scripts/blur-lock.sh"
+# Set idle timer to 5 minutes
+exec --no-startup-id xset s 300 300
 
 # Wallpaper
 exec_always --no-startup-id "$HOME/.config/i3/scripts/wallpaper_manager.sh"

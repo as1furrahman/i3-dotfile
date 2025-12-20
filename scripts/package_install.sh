@@ -41,7 +41,7 @@ readonly PACKAGES=(
     firmware-linux firmware-linux-nonfree firmware-amd-graphics
     firmware-sof-signed firmware-iwlwifi
     # System
-    bluez network-manager tlp tlp-rdw powertop power-profiles-daemon systemd-suspend
+    bluez network-manager tlp tlp-rdw powertop power-profiles-daemon
     # Fonts and themes
     fonts-cascadia-code fonts-jetbrains-mono fonts-firacode
     fonts-noto-core fonts-noto-color-emoji
@@ -49,7 +49,7 @@ readonly PACKAGES=(
     fonts-font-awesome papirus-icon-theme arc-theme
     # Utilities
     dex arandr imagemagick curl wget git unzip fontconfig
-    xautolock maim xclip brightnessctl
+    xss-lock maim xclip brightnessctl
     bat ripgrep fd-find build-essential gfortran cmake
     podman distrobox
 )
