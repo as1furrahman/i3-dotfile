@@ -7,6 +7,7 @@ Minimal, production-ready dotfiles for Debian 13 (Trixie) with i3 window manager
 ```bash
 git clone https://github.com/as1furrahman/i3-dotfile.git
 cd i3-dotfile
+chmod +x install.sh
 ./install.sh
 # Log out, log back in
 startx
