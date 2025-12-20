@@ -173,10 +173,10 @@ bindsym $mod+Shift+m exec $term -e $monitor
 bindsym $mod+p exec $term -e pass
 
 # Projects folder
-bindsym $mod+g exec $term -e zsh -ic "cd ~/projects && zsh"
+bindsym $mod+Shift+p exec $term -e zsh -ic "cd ~/projects && zsh"
 
 # Browser
-bindsym $mod+Shift+b exec --no-startup-id firefox-esr
+bindsym $mod+w exec --no-startup-id firefox-esr
 
 # Screenshot
 bindsym Print exec --no-startup-id "$HOME/.config/i3/scripts/screenshot.sh"
