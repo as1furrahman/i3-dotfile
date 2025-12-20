@@ -89,6 +89,8 @@ deploy_configs() {
     # Copy shell configs
     cp "$DOTFILES_DIR/shell/.zshrc" "$HOME/.zshrc"
     cp "$DOTFILES_DIR/shell/.zsh_aliases" "$HOME/.zsh_aliases"
+    cp "$DOTFILES_DIR/shell/.xinitrc" "$HOME/.xinitrc"
+    cp "$DOTFILES_DIR/shell/.Xresources" "$HOME/.Xresources"
 
     # Perms
     chmod +x "$CONFIG_DIR/i3/scripts/"*.sh

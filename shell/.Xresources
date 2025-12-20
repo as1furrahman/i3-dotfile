@@ -1,0 +1,14 @@
+! ============================================================================
+! .Xresources - X11 Resources
+! ============================================================================
+
+! DPI Scaling (1.5x)
+Xft.dpi: 144
+
+! Font defaults
+Xft.antialias: true
+Xft.hinting: true
+Xft.rgba: rgb
+Xft.autohint: false
+Xft.hintstyle: hintslight
+Xft.lcdfilter: lcddefault
