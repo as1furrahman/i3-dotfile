@@ -281,13 +281,13 @@ bar {
 # ============================================================================
 
 # Wallpaper
-exec_always --no-startup-id feh --bg-fill "$HOME/.config/wallpapers/tokyo-night.png"
+# exec_always --no-startup-id feh --bg-fill "$HOME/.config/wallpapers/tokyo-night.png"
 
 # Monitor layout
-exec --no-startup-id "$HOME/.screenlayout/monitor.sh"
+# exec --no-startup-id "$HOME/.screenlayout/monitor.sh"
 
 # Compositor
-exec --no-startup-id picom --config ~/.config/picom/picom.conf
+# exec --no-startup-id picom --config ~/.config/picom/picom.conf
 
 # Notifications
 exec --no-startup-id dunst
@@ -308,7 +308,7 @@ exec --no-startup-id xset s 300 300
 exec_always --no-startup-id "$HOME/.config/i3/scripts/wallpaper_manager.sh"
 
 # Autostart applications
-exec --no-startup-id dex --autostart --environment i3
+# exec --no-startup-id dex --autostart --environment i3
 
 # Open terminal on workspace 1
 exec --no-startup-id i3-msg 'workspace $ws1; exec $term'
