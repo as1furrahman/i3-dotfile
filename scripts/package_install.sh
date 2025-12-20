@@ -36,7 +36,7 @@ readonly PACKAGES=(
     # Applications
     pass zathura firefox-esr evince
     # Audio (Pipewire)
-    pipewire pipewire-pulse wireplumber pavucontrol
+    pipewire pipewire-pulse wireplumber pavucontrol pulseaudio-utils
     # Firmware and drivers
     firmware-linux firmware-linux-nonfree firmware-amd-graphics
     firmware-sof-signed firmware-iwlwifi

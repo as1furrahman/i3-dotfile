@@ -28,7 +28,7 @@ configure_pipewire() {
         # Remove PulseAudio if present
         if dpkg -l pulseaudio &> /dev/null 2>&1; then
             log " removing PulseAudio to prevent conflicts (purging)..."
-            sudo apt purge -y pulseaudio pulseaudio-utils >> "$LOG_FILE" 2>&1 || true
+            sudo apt purge -y pulseaudio >> "$LOG_FILE" 2>&1 || true
         fi
         
         # Enable Pipewire services
