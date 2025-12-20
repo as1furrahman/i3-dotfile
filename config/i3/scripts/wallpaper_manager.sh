@@ -12,7 +12,7 @@ WALL_URL="https://raw.githubusercontent.com/linuxdotexe/nordic-wallpapers/master
 mkdir -p "$WALL_DIR"
 
 # Download default if not exists
-if [[ ! -f "$DEFAULT_WALL" ]]; then
+if [[ ! -f "$DEFAULT_WALL" ]] || [[ $(stat -c%s "$DEFAULT_WALL") -lt 1024 ]]; then
     # Use the requested URL logic or a placeholder if that specific one isn't perfect, 
     # but for now we'll use a reliable placeholder or the one from the prompt example.
     # The prompt suggested "Tokyo Night minimal wallpaper". 
