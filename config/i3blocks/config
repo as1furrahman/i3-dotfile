@@ -20,7 +20,7 @@ color=#e0af68
 interval=30
 
 [battery]
-command=cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo "N/A"
+command=BAT=$(ls /sys/class/power_supply/ | grep -E 'BAT[0-9]+' | head -1); if [ -n "$BAT" ]; then CAP=$(cat /sys/class/power_supply/$BAT/capacity); STATUS=$(cat /sys/class/power_supply/$BAT/status); if [ "$STATUS" = "Charging" ]; then echo "$CAP%+"; else echo "$CAP%"; fi; else echo "N/A"; fi
 label=󰁹 
 color=#bb9af7
 interval=30

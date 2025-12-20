@@ -1,0 +1,98 @@
+/**
+ * Tokyo Night Theme for Rofi
+ * Based on the popular Tokyo Night color scheme
+ */
+
+* {
+    /* Tokyo Night Colors */
+    bg-dark:     #1a1b26;
+    bg:          #24283b;
+    bg-light:    #414868;
+    fg:          #c0caf5;
+    fg-dark:     #565f89;
+    accent:      #7aa2f7;
+    accent-alt:  #bb9af7;
+    red:         #f7768e;
+    green:       #9ece6a;
+    yellow:      #e0af68;
+    
+    /* Applied Colors */
+    background-color:   @bg-dark;
+    text-color:         @fg;
+    border-color:       @accent;
+}
+
+window {
+    background-color:   @bg-dark;
+    border:             2px solid;
+    border-color:       @accent;
+    border-radius:      12px;
+    padding:            20px;
+}
+
+mainbox {
+    background-color:   transparent;
+    children:           [ inputbar, listview ];
+    spacing:            15px;
+}
+
+inputbar {
+    background-color:   @bg;
+    border:             0px;
+    border-radius:      8px;
+    padding:            12px 16px;
+    children:           [ prompt, entry ];
+    spacing:            10px;
+}
+
+prompt {
+    background-color:   transparent;
+    text-color:         @accent;
+    font:               "Cascadia Code Bold 11";
+}
+
+entry {
+    background-color:   transparent;
+    text-color:         @fg;
+    placeholder-color:  @fg-dark;
+    placeholder:        "Search...";
+}
+
+listview {
+    background-color:   transparent;
+    scrollbar:          false;
+    spacing:            5px;
+}
+
+element {
+    background-color:   transparent;
+    padding:            10px 15px;
+    border-radius:      8px;
+}
+
+element normal.normal {
+    background-color:   transparent;
+    text-color:         @fg;
+}
+
+element selected.normal {
+    background-color:   @bg-light;
+    text-color:         @accent;
+}
+
+element alternate.normal {
+    background-color:   transparent;
+    text-color:         @fg;
+}
+
+element-icon {
+    background-color:   transparent;
+    size:               24px;
+    margin:             0 10px 0 0;
+}
+
+element-text {
+    background-color:   transparent;
+    text-color:         inherit;
+    vertical-align:     0.5;
+}
