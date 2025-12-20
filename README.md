@@ -5,8 +5,8 @@ Minimal, production-ready dotfiles for Debian 13 (Trixie) with i3 window manager
 ## Quick Start
 
 ```bash
-git clone https://github.com/yourusername/dotfiles.git
-cd dotfiles
+git clone https://github.com/as1furrahman/i3-dotfile.git
+cd i3-dotfile
 ./install.sh
 # Log out, log back in
 startx
@@ -23,9 +23,7 @@ startx
 ### BIOS Settings (Required)
 | Setting | Value | Reason |
 |---------|-------|--------|
-| VMD Controller | **DISABLED** | NVMe detection |
 | Secure Boot | **DISABLED** | Third-party drivers |
-| Fast Boot | **DISABLED** | USB detection |
 
 ## Features
 
