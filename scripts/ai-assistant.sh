@@ -3,19 +3,32 @@
 # AI Assistant for i3 using OpenAI GPT API
 # Triggered via rofi, displays response in rofi popup
 # 
-# Setup: Set your API key as environment variable:
-#   export OPENAI_API_KEY="your-api-key"
-#   Add to ~/.zshrc or ~/.bashrc
+# API key is stored in ~/.config/openai_api_key
 
 # Configuration
-API_KEY="${OPENAI_API_KEY:-}"
+KEY_FILE="$HOME/.config/openai_api_key"
 MODEL="gpt-4o-mini"  # Fast and cheap, change to "gpt-4o" for better quality
 MAX_TOKENS=500
 
-# Check for API key
+# Load API key from file or environment
+if [[ -f "$KEY_FILE" ]]; then
+    API_KEY=$(cat "$KEY_FILE" | tr -d '\n')
+else
+    API_KEY="${OPENAI_API_KEY:-}"
+fi
+
+# If no API key, prompt user to enter one
 if [[ -z "$API_KEY" ]]; then
-    echo "OPENAI_API_KEY not set! Add to ~/.zshrc" | rofi -dmenu -p "󰀩 Error" -theme-str 'window {width: 50%;}'
-    exit 1
+    API_KEY=$(rofi -dmenu -p "󰌆 Enter OpenAI API Key" -password -theme-str 'window {width: 50%;} listview {lines: 0;}')
+    
+    if [[ -z "$API_KEY" ]]; then
+        exit 0  # User cancelled
+    fi
+    
+    # Save API key for future use
+    mkdir -p "$(dirname "$KEY_FILE")"
+    echo "$API_KEY" > "$KEY_FILE"
+    chmod 600 "$KEY_FILE"
 fi
 
 # Get user input via rofi
@@ -42,7 +55,9 @@ RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
 ANSWER=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // .error.message // "Error: No response"' 2>/dev/null)
 
 if [[ -z "$ANSWER" || "$ANSWER" == "null" ]]; then
-    ANSWER="Error: Failed to get response from API"
+    ANSWER="Error: Failed to get response. Check your API key."
+    # Remove saved key if it failed
+    rm -f "$KEY_FILE"
 fi
 
 # Display response in rofi (scrollable)
