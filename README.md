@@ -5,11 +5,13 @@
 
 A production-ready, modular dotfiles repository designed for a minimal, terminal-centric workflow.
 
-## Quick Install
+## Quick Install (Productivity First)
+
+The installer uses **symlinks** for all configurations. Any change you make inside this repository is instantly applied to your system, enabling a seamless "edit-and-test" workflow.
 
 ```bash
 sudo apt install git -y
-git clone https://github.com/as1furrahman/dotfiles.git
+git clone https://github.com/as1furrahman/i3-dotfile.git
 cd dotfiles
 chmod +x install.sh
 ./install.sh

@@ -68,35 +68,36 @@ run_post_install() { bash "$SCRIPTS_DIR/post_install.sh"; }
 run_post_install() { bash "$SCRIPTS_DIR/post_install.sh"; }
 
 deploy_configs() {
-    header "Deploying Config Files"
+    header "Deploying Config Files (Symlinking)"
     
-    # Ensure config directories exist (covered by post_install mostly, but good to be safe)
+    # Ensure config directory exists
     mkdir -p "$CONFIG_DIR"
     
-    # Copy configs
-    # Using specific list to match requirements
-    cp -r "$DOTFILES_DIR/config/i3" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/i3blocks" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/alacritty" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/rofi" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/picom" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/dunst" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/nvim" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/lf" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/zathura" "$CONFIG_DIR/"
-    cp -r "$DOTFILES_DIR/config/gtk-3.0" "$CONFIG_DIR/"
+    # List of configs to symlink (directory-based)
+    local configs=(
+        "i3" "i3blocks" "alacritty" "rofi" "picom" 
+        "dunst" "nvim" "lf" "zathura" "gtk-3.0"
+    )
     
-    # Copy shell configs
-    cp "$DOTFILES_DIR/shell/.zshrc" "$HOME/.zshrc"
-    cp "$DOTFILES_DIR/shell/.zsh_aliases" "$HOME/.zsh_aliases"
-    cp "$DOTFILES_DIR/shell/.xinitrc" "$HOME/.xinitrc"
-    cp "$DOTFILES_DIR/shell/.Xresources" "$HOME/.Xresources"
+    for cfg in "${configs[@]}"; do
+        if [ -d "$DOTFILES_DIR/config/$cfg" ]; then
+            ln -sfn "$DOTFILES_DIR/config/$cfg" "$CONFIG_DIR/$cfg"
+            echo -e "${GREEN}[OK]${NC} Linked $cfg"
+        fi
+    done
+    
+    # Symlink shell configs
+    ln -sf "$DOTFILES_DIR/shell/.zshrc" "$HOME/.zshrc"
+    ln -sf "$DOTFILES_DIR/shell/.zsh_aliases" "$HOME/.zsh_aliases"
+    ln -sf "$DOTFILES_DIR/shell/.xinitrc" "$HOME/.xinitrc"
+    ln -sf "$DOTFILES_DIR/shell/.Xresources" "$HOME/.Xresources"
+    echo -e "${GREEN}[OK]${NC} Linked shell configs"
 
-    # Perms
-    chmod +x "$CONFIG_DIR/i3/scripts/"*.sh
-    chmod +x "$CONFIG_DIR/lf/preview.sh"
+    # Permissions
+    chmod +x "$DOTFILES_DIR/config/i3/scripts/"*.sh 2>/dev/null || true
+    chmod +x "$DOTFILES_DIR/config/lf/preview.sh" 2>/dev/null || true
     
-    echo -e "${GREEN}[SUCCESS] Configuration files deployed.${NC}"
+    echo -e "${GREEN}[SUCCESS] Symlinks created.${NC}"
 }
 
 # Menus
