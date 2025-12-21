@@ -1,11 +1,9 @@
 #!/bin/bash
 set -e
 
-# Disable interactive prompts for Git (if still used elsewhere)
-export GIT_TERMINAL_PROMPT=0
-
 # ============================================================================
 # Tokyo Night Theme Installer (GTK & Icons)
+# Simple, non-interactive, no authentication required
 # ============================================================================
 
 THEME_DIR="$HOME/.local/share/themes"
@@ -16,68 +14,75 @@ mkdir -p "$THEME_DIR" "$ICON_DIR"
 # Colors
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${BLUE}Downloading Tokyo Night GTK Theme...${NC}"
+log() { echo -e "${BLUE}[INFO]${NC} $1"; }
+success() { echo -e "${GREEN}[OK]${NC} $1"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 
-# Using the active and public Tokyo Night GTK theme repository
-# We use 'Tokyonight-Dark-B' if available, otherwise fallback to finding the theme.
-# Fausto-Korpsvart is the current maintainer.
-if [ ! -d "$THEME_DIR/Tokyonight-Dark-B" ] && [ ! -d "$THEME_DIR/Tokyonight-Dark" ]; then
-    echo -e "${BLUE}Downloading Tokyo Night GTK Theme archive...${NC}"
-    curl -L https://github.com/Fausto-Korpsvart/Tokyonight-GTK-Theme/archive/refs/heads/master.zip -o /tmp/tokyonight-gtk.zip
-    unzip -q /tmp/tokyonight-gtk.zip -d /tmp/tokyonight-gtk-extract
-    # The extracted folder will be named Tokyonight-GTK-Theme-master
-    mv /tmp/tokyonight-gtk-extract/Tokyonight-GTK-Theme-master /tmp/tokyonight-gtk
+# Download function: uses wget (pre-installed on Debian) or curl as fallback
+download() {
+    local url="$1"
+    local output="$2"
     
-    # Try to find the specific variant or just install all themes found in the repo
-    if [ -d "/tmp/tokyonight-gtk/themes/Tokyonight-Dark-B" ]; then
-        cp -r /tmp/tokyonight-gtk/themes/Tokyonight-Dark-B "$THEME_DIR/"
-        echo -e "${GREEN}Installed Tokyonight-Dark-B GTK Theme${NC}"
-    elif [ -d "/tmp/tokyonight-gtk/themes" ]; then
-        # Install all variants if specific one not found
-        cp -r /tmp/tokyonight-gtk/themes/* "$THEME_DIR/"
-        echo -e "${GREEN}Installed all Tokyo Night GTK Theme variants${NC}"
+    if command -v wget &> /dev/null; then
+        wget -q --show-progress -O "$output" "$url"
+    elif command -v curl &> /dev/null; then
+        curl -fsSL -o "$output" "$url"
     else
-        # If the structure is flat (theme at root), look for index.theme to confirm
-        if [ -f "/tmp/tokyonight-gtk/index.theme" ]; then
-             cp -r /tmp/tokyonight-gtk "$THEME_DIR/Tokyonight-GTK-Theme"
-             echo -e "${GREEN}Installed Tokyo Night GTK Theme (Root)${NC}"
-        else
-             echo -e "${BLUE}Attempting to find theme folders...${NC}"
-             # Find folders containing index.theme and copy their parents
-             find /tmp/tokyonight-gtk -name "index.theme" -printf "%h\n" | while read -r theme_path; do
-                cp -r "$theme_path" "$THEME_DIR/"
-             done
-             echo -e "${GREEN}Installed discovered themes${NC}"
-        fi
+        # Install wget as last resort
+        warn "No download tool found. Installing wget..."
+        sudo apt-get install -y wget > /dev/null 2>&1
+        wget -q --show-progress -O "$output" "$url"
     fi
-    rm -rf /tmp/tokyonight-gtk /tmp/tokyonight-gtk-extract /tmp/tokyonight-gtk.zip
+}
+
+# GTK Theme
+if [ ! -d "$THEME_DIR/Tokyonight-Dark-B" ] && [ ! -d "$THEME_DIR/Tokyonight-Dark" ]; then
+    log "Downloading Tokyo Night GTK Theme..."
+    
+    download "https://github.com/Fausto-Korpsvart/Tokyo-Night-GTK-Theme/archive/refs/heads/master.zip" "/tmp/tokyonight-gtk.zip"
+    
+    unzip -q -o /tmp/tokyonight-gtk.zip -d /tmp/
+    
+    # Find and install theme variants
+    if [ -d "/tmp/Tokyo-Night-GTK-Theme-master/themes" ]; then
+        cp -r /tmp/Tokyo-Night-GTK-Theme-master/themes/* "$THEME_DIR/" 2>/dev/null || true
+        success "Tokyo Night GTK themes installed"
+    elif [ -d "/tmp/Tokyonight-GTK-Theme-master/themes" ]; then
+        cp -r /tmp/Tokyonight-GTK-Theme-master/themes/* "$THEME_DIR/" 2>/dev/null || true
+        success "Tokyo Night GTK themes installed"
+    else
+        warn "Theme structure not found, installing root folder"
+        find /tmp -maxdepth 2 -name "Tokyonight*" -type d | head -1 | xargs -I{} cp -r {} "$THEME_DIR/"
+    fi
+    
+    rm -rf /tmp/tokyonight-gtk.zip /tmp/*GTK-Theme-master /tmp/Tokyo-Night* 2>/dev/null || true
 else
-    echo "Tokyo Night GTK theme already installed."
+    log "Tokyo Night GTK theme already installed."
 fi
 
 # Icons
-if [ ! -d "$ICON_DIR/Tokyonight-Moon" ]; then
-    echo -e "${BLUE}Downloading Tokyo Night Icons archive...${NC}"
-    # Corrected URL: ljmill/tokyo-night-icons (lowercase)
-    curl -L https://github.com/ljmill/tokyo-night-icons/archive/refs/heads/master.zip -o /tmp/tokyonight-icons.zip
-    unzip -q /tmp/tokyonight-icons.zip -d /tmp/tokyonight-icons-extract
-    # The extracted folder will be named tokyo-night-icons-master
-    mv /tmp/tokyonight-icons-extract/tokyo-night-icons-master /tmp/tokyonight-icons
+if [ ! -d "$ICON_DIR/TokyoNight-Moon" ] && [ ! -d "$ICON_DIR/Tokyonight-Moon" ]; then
+    log "Downloading Tokyo Night Icons..."
     
-    # Move them
-    if [ -d "/tmp/tokyonight-icons/TokyoNight-Moon" ]; then
-        cp -r /tmp/tokyonight-icons/TokyoNight-Moon "$ICON_DIR/"
-        echo -e "${GREEN}Installed Tokyonight-Moon Icons${NC}"
+    download "https://github.com/ljmill/tokyo-night-icons/archive/refs/heads/master.zip" "/tmp/tokyonight-icons.zip"
+    
+    unzip -q -o /tmp/tokyonight-icons.zip -d /tmp/
+    
+    if [ -d "/tmp/tokyo-night-icons-master/TokyoNight-Moon" ]; then
+        cp -r /tmp/tokyo-night-icons-master/TokyoNight-Moon "$ICON_DIR/"
+        success "Tokyo Night icons installed"
     else
-        # Fallback if structure is different
-        cp -r /tmp/tokyonight-icons/* "$ICON_DIR/" 2>/dev/null || true
-        echo -e "${GREEN}Installed Icon assets${NC}"
+        # Copy whatever icon folders exist
+        cp -r /tmp/tokyo-night-icons-master/* "$ICON_DIR/" 2>/dev/null || true
+        success "Tokyo Night icon assets installed"
     fi
-    rm -rf /tmp/tokyonight-icons /tmp/tokyonight-icons-extract /tmp/tokyonight-icons.zip
+    
+    rm -rf /tmp/tokyonight-icons.zip /tmp/tokyo-night-icons-master 2>/dev/null || true
 else
-    echo "Tokyonight-Moon icons already installed."
+    log "Tokyo Night icons already installed."
 fi
 
-echo -e "${GREEN}Theme assets installed.${NC}"
+success "Theme installation complete!"
