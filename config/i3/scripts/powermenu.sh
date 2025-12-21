@@ -6,7 +6,7 @@
 # Options
 lock="󰒳 Lock"
 suspend="󰒲 Suspend"
-hibernate="🌙 Hibernate"
+hibernate="󰜗 Hibernate"
 logout="󰍃 Logout"
 reboot="󱐋 Reboot"
 shutdown="󰐥 Shutdown"

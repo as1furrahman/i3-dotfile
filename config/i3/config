@@ -34,7 +34,7 @@ set $term alacritty
 set $editor nvim
 set $filemgr lf
 set $monitor btop
-set $launcher rofi -modi drun -show drun -line-padding 4 -columns 2 -padding 50 -hide-scrollbar -show-icons -drun-icon-theme "Papirus-Dark" -font "Cascadia Code 13"
+set $launcher rofi -show drun -show-icons
 
 # Workspaces
 set $ws1 "1"
@@ -83,27 +83,27 @@ bindsym $mod+Return exec $term
 bindsym $mod+Shift+Return exec $term --title="floating-term"
 
 # Close window
-bindsym $mod+c kill
+bindsym $mod+Shift+q kill
 
 # Reload/Restart
 bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 
-# Power menu
-bindsym $mod+Shift+e exec --no-startup-id "$HOME/.config/i3/scripts/powermenu.sh"
+# Exit i3 (with confirmation)
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes' 'i3-msg exit' -B 'Power Menu' '$HOME/.config/i3/scripts/powermenu.sh'"
 
 # Lock screen
-bindsym $mod+l exec --no-startup-id "$HOME/.config/i3/scripts/blur-lock.sh"
+bindsym $mod+Ctrl+l exec --no-startup-id "$HOME/.config/i3/scripts/blur-lock.sh"
 
 # ============================================================================
 # KEYBINDINGS - NAVIGATION
 # ============================================================================
 
-# Focus (vim-style: j=left, k=down, b=up, o=right)
-bindsym $mod+j focus left
-bindsym $mod+k focus down
-bindsym $mod+b focus up
-bindsym $mod+o focus right
+# Focus (vim-style: h=left, j=down, k=up, l=right)
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
 
 # Focus (arrow keys)
 bindsym $mod+Left focus left
@@ -112,10 +112,10 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
 # Move (vim-style)
-bindsym $mod+Shift+j move left
-bindsym $mod+Shift+k move down
-bindsym $mod+Shift+b move up
-bindsym $mod+Shift+o move right
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
 
 # Move (arrow keys)
 bindsym $mod+Shift+Left move left
@@ -124,7 +124,7 @@ bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
 # Split
-bindsym $mod+h split h
+bindsym $mod+semicolon split h
 bindsym $mod+v split v
 
 # Fullscreen
@@ -158,9 +158,10 @@ bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
 # ============================================================================
 
 # Launchers
+bindsym $mod+d exec --no-startup-id $launcher
 bindsym F9 exec --no-startup-id $launcher
 bindsym F10 exec --no-startup-id rofi -show window -font "Cascadia Code 13"
-bindsym $mod+Shift+d exec --no-startup-id rofi -show run -font "Cascadia Code 13"
+bindsym $mod+Shift+d exec --no-startup-id rofi -show run -no-show-icons -font "Cascadia Code 13"
 
 # File managers
 bindsym $mod+n exec $term -e $filemgr
@@ -233,11 +234,11 @@ for_window [urgent=latest] focus
 # ============================================================================
 
 mode "resize" {
-    # Vim-style
-    bindsym j resize shrink width 10 px or 10 ppt
-    bindsym k resize grow height 10 px or 10 ppt
-    bindsym b resize shrink height 10 px or 10 ppt
-    bindsym o resize grow width 10 px or 10 ppt
+    # Vim-style (h=shrink width, j=grow height, k=shrink height, l=grow width)
+    bindsym h resize shrink width 10 px or 10 ppt
+    bindsym j resize grow height 10 px or 10 ppt
+    bindsym k resize shrink height 10 px or 10 ppt
+    bindsym l resize grow width 10 px or 10 ppt
 
     # Arrow keys
     bindsym Left resize shrink width 10 px or 10 ppt

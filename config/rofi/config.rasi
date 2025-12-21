@@ -1,6 +1,6 @@
 configuration {
     modi: "drun,run,window";
-    font: "Cascadia Code 11";
+    font: "Cascadia Code NF 11";
     show-icons: true;
     icon-theme: "Papirus-Dark";
     display-drun: "Apps";

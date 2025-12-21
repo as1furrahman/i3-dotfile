@@ -1,3 +1,20 @@
+# Alacritty Configuration - Tokyo Night Theme
+# Optimized for Asus Zenbook S 13 OLED
+
+[general]
+live_config_reload = true
+
+[window]
+opacity = 0.95
+padding = { x = 8, y = 8 }
+decorations = "full"
+dynamic_title = true
+class = { instance = "Alacritty", general = "Alacritty" }
+
+[scrolling]
+history = 10000
+multiplier = 3
+
 [font]
 size = 11.0
 
@@ -13,41 +30,68 @@ style = "Bold"
 family = "Cascadia Code"
 style = "Italic"
 
-[window]
-opacity = 0.95
-padding = { x = 8, y = 8 }
-title = "Alacritty"
-class = { instance = "Alacritty", general = "Alacritty" }
+[font.bold_italic]
+family = "Cascadia Code"
+style = "Bold Italic"
 
-[scrolling]
-history = 10000
-
+# Tokyo Night Color Scheme
 [colors.primary]
 background = "#1a1b26"
 foreground = "#c0caf5"
 
+[colors.cursor]
+text = "#1a1b26"
+cursor = "#c0caf5"
+
+[colors.vi_mode_cursor]
+text = "#1a1b26"
+cursor = "#c0caf5"
+
+[colors.selection]
+text = "#c0caf5"
+background = "#33467c"
+
+[colors.search.matches]
+foreground = "#1a1b26"
+background = "#7aa2f7"
+
+[colors.search.focused_match]
+foreground = "#1a1b26"
+background = "#e0af68"
+
 [colors.normal]
-black = "#15161e"
-red = "#f7768e"
-green = "#9ece6a"
-yellow = "#e0af68"
-blue = "#7aa2f7"
+black   = "#15161e"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
 magenta = "#bb9af7"
-cyan = "#7dcfff"
-white = "#a9b1d6"
+cyan    = "#7dcfff"
+white   = "#a9b1d6"
 
 [colors.bright]
-black = "#414868"
-red = "#f7768e"
-green = "#9ece6a"
-yellow = "#e0af68"
-blue = "#7aa2f7"
+black   = "#414868"
+red     = "#f7768e"
+green   = "#9ece6a"
+yellow  = "#e0af68"
+blue    = "#7aa2f7"
 magenta = "#bb9af7"
-cyan = "#7dcfff"
-white = "#c0caf5"
+cyan    = "#7dcfff"
+white   = "#c0caf5"
+
+[cursor]
+style = { shape = "Block", blinking = "Off" }
+unfocused_hollow = true
+
+[terminal]
+osc52 = "CopyPaste"
 
 [keyboard]
 bindings = [
-  { key = "C", mods = "Control|Shift", action = "Copy" },
-  { key = "V", mods = "Control|Shift", action = "Paste" },
+    { key = "C", mods = "Control|Shift", action = "Copy" },
+    { key = "V", mods = "Control|Shift", action = "Paste" },
+    { key = "N", mods = "Control|Shift", action = "SpawnNewInstance" },
+    { key = "Plus", mods = "Control", action = "IncreaseFontSize" },
+    { key = "Minus", mods = "Control", action = "DecreaseFontSize" },
+    { key = "Key0", mods = "Control", action = "ResetFontSize" },
 ]

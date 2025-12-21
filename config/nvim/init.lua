@@ -1,36 +1,169 @@
--- Minimal Neovim Config for Dotfiles
+-- Neovim Configuration
+-- Minimal setup for terminal-first workflow
 
--- Sets
+-- Leader key
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+-- Line numbers
 vim.opt.number = true
 vim.opt.relativenumber = true
-vim.opt.mouse = 'a'
+
+-- Mouse support
+vim.opt.mouse = "a"
+
+-- Search settings
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.hlsearch = false
+vim.opt.incsearch = true
+
+-- Display settings
 vim.opt.wrap = false
 vim.opt.scrolloff = 8
-vim.opt.updatetime = 50
+vim.opt.sidescrolloff = 8
+vim.opt.signcolumn = "yes"
+vim.opt.colorcolumn = "80"
+vim.opt.termguicolors = true
+vim.opt.cursorline = true
+
+-- Tabs and indentation
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.smartindent = true
-vim.opt.termguicolors = true
+vim.opt.autoindent = true
 
+-- Performance
+vim.opt.updatetime = 50
+vim.opt.timeoutlen = 300
+
+-- Undo and backup
+vim.opt.undofile = true
+vim.opt.swapfile = false
+vim.opt.backup = false
+
+-- Split behavior
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+
+-- Clipboard
+vim.opt.clipboard = "unnamedplus"
+
+-- Completion
+vim.opt.completeopt = { "menuone", "noselect" }
+
+-- File encoding
+vim.opt.fileencoding = "utf-8"
+
+-- ============================================
 -- Keymaps
-vim.g.mapleader = ' '
-local map = vim.keymap.set
+-- ============================================
 
-map('n', '<leader>w', ':w<CR>')
-map('n', '<leader>q', ':q<CR>')
-map('n', '<leader>e', ':Ex<CR>')
+local keymap = vim.keymap.set
+local opts = { noremap = true, silent = true }
+
+-- Save and quit
+keymap("n", "<leader>w", ":w<CR>", opts)
+keymap("n", "<leader>q", ":q<CR>", opts)
+keymap("n", "<leader>Q", ":qa!<CR>", opts)
+
+-- File explorer
+keymap("n", "<leader>e", ":Ex<CR>", opts)
 
 -- Window navigation
-map('n', '<C-h>', '<C-w>h')
-map('n', '<C-j>', '<C-w>j')
-map('n', '<C-k>', '<C-w>k')
-map('n', '<C-l>', '<C-w>l')
+keymap("n", "<C-h>", "<C-w>h", opts)
+keymap("n", "<C-j>", "<C-w>j", opts)
+keymap("n", "<C-k>", "<C-w>k", opts)
+keymap("n", "<C-l>", "<C-w>l", opts)
 
--- Splits
-map('n', '<leader>sv', ':vsplit<CR>')
-map('n', '<leader>sh', ':split<CR>')
+-- Window splits
+keymap("n", "<leader>sv", ":vsplit<CR>", opts)
+keymap("n", "<leader>sh", ":split<CR>", opts)
+keymap("n", "<leader>sx", ":close<CR>", opts)
+
+-- Resize windows
+keymap("n", "<C-Up>", ":resize +2<CR>", opts)
+keymap("n", "<C-Down>", ":resize -2<CR>", opts)
+keymap("n", "<C-Left>", ":vertical resize -2<CR>", opts)
+keymap("n", "<C-Right>", ":vertical resize +2<CR>", opts)
+
+-- Buffer navigation
+keymap("n", "<S-l>", ":bnext<CR>", opts)
+keymap("n", "<S-h>", ":bprevious<CR>", opts)
+keymap("n", "<leader>bd", ":bdelete<CR>", opts)
+
+-- Move lines
+keymap("v", "J", ":m '>+1<CR>gv=gv", opts)
+keymap("v", "K", ":m '<-2<CR>gv=gv", opts)
+
+-- Keep cursor centered
+keymap("n", "<C-d>", "<C-d>zz", opts)
+keymap("n", "<C-u>", "<C-u>zz", opts)
+keymap("n", "n", "nzzzv", opts)
+keymap("n", "N", "Nzzzv", opts)
+
+-- Better paste
+keymap("x", "<leader>p", [["_dP]], opts)
+
+-- Clear search highlight
+keymap("n", "<Esc>", ":nohlsearch<CR>", opts)
+
+-- Quick escape from insert mode
+keymap("i", "jk", "<Esc>", opts)
+
+-- Select all
+keymap("n", "<C-a>", "gg<S-v>G", opts)
+
+-- ============================================
+-- Autocommands
+-- ============================================
+
+local augroup = vim.api.nvim_create_augroup
+local autocmd = vim.api.nvim_create_autocmd
+
+-- Highlight on yank
+augroup("YankHighlight", { clear = true })
+autocmd("TextYankPost", {
+    group = "YankHighlight",
+    callback = function()
+        vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
+    end,
+})
+
+-- Remove trailing whitespace on save
+augroup("TrimWhitespace", { clear = true })
+autocmd("BufWritePre", {
+    group = "TrimWhitespace",
+    pattern = "*",
+    command = [[%s/\s\+$//e]],
+})
+
+-- Restore cursor position
+augroup("RestoreCursor", { clear = true })
+autocmd("BufReadPost", {
+    group = "RestoreCursor",
+    pattern = "*",
+    callback = function()
+        local mark = vim.api.nvim_buf_get_mark(0, '"')
+        local lcount = vim.api.nvim_buf_line_count(0)
+        if mark[1] > 0 and mark[1] <= lcount then
+            pcall(vim.api.nvim_win_set_cursor, 0, mark)
+        end
+    end,
+})
+
+-- ============================================
+-- Simple colorscheme (built-in)
+-- ============================================
+
+vim.cmd([[
+    colorscheme habamax
+    highlight Normal guibg=NONE ctermbg=NONE
+    highlight NormalFloat guibg=NONE ctermbg=NONE
+]])
+
+-- Status line
+vim.opt.laststatus = 2
+vim.opt.statusline = " %f %m %= %l:%c [%p%%] "

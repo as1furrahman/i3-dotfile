@@ -1,28 +1,70 @@
-# General
-alias v='nvim'
-alias m='micro'
-alias f='lf'
-alias ll='ls -lah'
-alias la='ls -A'
-alias l='ls -CF'
-alias c='clear'
-alias q='exit'
+# ============================================
+# Additional Zsh Aliases
+# Source this file from .zshrc if desired
+# ============================================
 
-# Git
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gl='git pull'
-alias gd='git diff'
+# Project-specific shortcuts (customize as needed)
+alias thesis='cd ~/projects/thesis && nvim .'
+alias notes='cd ~/Documents/notes && nvim .'
 
-# System
-alias top='btop'
-alias cat='bat --theme=TwoDark 2>/dev/null || cat'
-alias projects='cd ~/projects'
-alias update='sudo apt update && sudo apt upgrade'
-alias cleanup='sudo apt autoremove && sudo apt autoclean'
+# Container workflows
+alias thesis-box='distrobox enter thesis'
+alias ml-box='distrobox enter mlai'
+alias matlab-box='distrobox enter matlab'
 
-# Config editing
-alias i3config='$EDITOR ~/.config/i3/config'
-alias zshconfig='$EDITOR ~/.zshrc'
+# Development
+alias py='python3'
+alias pip='pip3'
+alias venv='python3 -m venv'
+alias activate='source ./venv/bin/activate'
+
+# Docker/Podman (prefer podman)
+alias docker='podman'
+alias dc='podman-compose'
+
+# Quick server
+alias serve='python3 -m http.server 8000'
+
+# Rsync shortcuts
+alias rsync-copy='rsync -avz --progress'
+alias rsync-move='rsync -avz --progress --remove-source-files'
+alias rsync-sync='rsync -avzu --delete --progress'
+
+# SSH shortcuts (add your hosts)
+# alias myserver='ssh user@hostname'
+
+# Wake/sleep display (for OLED)
+alias dimscreen='brightnessctl set 30%'
+alias brightscreen='brightnessctl set 100%'
+
+# Audio controls
+alias vol-up='pactl set-sink-volume @DEFAULT_SINK@ +5%'
+alias vol-down='pactl set-sink-volume @DEFAULT_SINK@ -5%'
+alias vol-mute='pactl set-sink-mute @DEFAULT_SINK@ toggle'
+
+# Power management
+alias powersave='powerprofilesctl set power-saver'
+alias balanced='powerprofilesctl set balanced'
+alias performance='powerprofilesctl set performance'
+
+# Clipboard (Wayland)
+alias clip='wl-copy'
+alias paste='wl-paste'
+
+# Screenshot (Wayland/GNOME)
+alias screenshot='gnome-screenshot -i'
+
+# Systemd user services
+alias scu='systemctl --user'
+alias scur='systemctl --user restart'
+alias scus='systemctl --user status'
+
+# Journal
+alias jctl='journalctl -xe'
+alias jctlu='journalctl --user -xe'
+
+# Network
+alias wifi='nmcli device wifi list'
+alias wifi-connect='nmcli device wifi connect'
+alias vpn-up='nmcli connection up'
+alias vpn-down='nmcli connection down'

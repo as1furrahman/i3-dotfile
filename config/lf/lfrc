@@ -1,16 +1,185 @@
+# lf file manager configuration
+# https://github.com/gokcehan/lf
+
+# Basic settings
 set hidden true
 set icons true
 set preview true
 set relativenumber true
 set drawbox true
 set ignorecase true
+set scrolloff 10
+set tabstop 4
+set info size:time
+set dircounts true
+set period 1
+set shell bash
+set shellopts '-eu'
+set ifs "\n"
 
 # Previewer
 set previewer ~/.config/lf/preview.sh
 
-# Keybindings
+# Ratios
+set ratios 1:2:3
+
+# Colors
+set cursorpreviewfmt "\033[7;2m"
+
+# Leave some space at the top and bottom
+set scrolloff 10
+
+# Custom commands
+cmd open &{{
+    case $(file --mime-type -Lb $f) in
+        text/*|application/json|inode/x-empty)
+            lf -remote "send $id \$nvim \$fx";;
+        image/*)
+            feh $fx &;;
+        video/*|audio/*)
+            mpv $fx &;;
+        application/pdf)
+            zathura $fx &;;
+        application/zip|application/gzip|application/x-tar|application/x-rar)
+            file-roller $fx &;;
+        *)
+            xdg-open $fx &;;
+    esac
+}}
+
+cmd mkdir %{{
+    printf "Directory Name: "
+    read ans
+    mkdir -p "$ans"
+}}
+
+cmd mkfile %{{
+    printf "File Name: "
+    read ans
+    touch "$ans"
+}}
+
+cmd trash %{{
+    files=$(printf "$fx" | tr '\n' ';')
+    while [ "$files" ]; do
+        file=${files%%;*}
+        trash-put "$(basename "$file")"
+        if [ "$files" = "$file" ]; then
+            files=''
+        else
+            files="${files#*;}"
+        fi
+    done
+}}
+
+cmd delete ${{
+    clear; tput cup $(($(tput lines)/3)); tput bold
+    set -f
+    printf "%s\n\t" "$fx"
+    printf "delete? [y/N] "
+    read ans
+    [ "$ans" = "y" ] && rm -rf $fx
+}}
+
+cmd extract ${{
+    clear; tput cup $(($(tput lines)/3)); tput bold
+    set -f
+    printf "%s\n\t" "$fx"
+    printf "extract? [y/N] "
+    read ans
+    [ "$ans" = "y" ] && aunpack $fx
+}}
+
+cmd zip %{{
+    printf "Archive Name: "
+    read ans
+    zip -r "$ans.zip" $(basename $fx)
+}}
+
+cmd tar %{{
+    printf "Archive Name: "
+    read ans
+    tar cvf "$ans.tar" $(basename $fx)
+}}
+
+cmd targz %{{
+    printf "Archive Name: "
+    read ans
+    tar czvf "$ans.tar.gz" $(basename $fx)
+}}
+
+# Copy path to clipboard
+cmd yank-path ${{
+    printf '%s' "$fx" | wl-copy
+}}
+
+cmd yank-dirname ${{
+    dirname -- "$f" | head -c-1 | wl-copy
+}}
+
+cmd yank-basename ${{
+    basename -a -- $fx | head -c-1 | wl-copy
+}}
+
+# Open terminal in current directory
+cmd terminal ${{
+    alacritty --working-directory . &
+}}
+
+# Fuzzy find
+cmd fzf_jump ${{
+    res="$(find . -maxdepth 3 | fzf --reverse --header='Jump to location')"
+    if [ -d "$res" ]; then
+        cmd="cd"
+    else
+        cmd="select"
+    fi
+    lf -remote "send $id $cmd \"$res\""
+}}
+
+# Key bindings
 map <enter> open
-map <delete> delete
+map o open
 map x cut
 map y copy
 map p paste
+map d delete
+map D trash
+map r rename
+map R reload
+map H top
+map L bottom
+map . set hidden!
+map <space> toggle
+map u unselect
+map c clear
+
+# Directory shortcuts
+map gh cd ~
+map gd cd ~/Documents
+map gD cd ~/Downloads
+map gp cd ~/projects
+map gc cd ~/.config
+map gt cd /tmp
+
+# Custom command shortcuts
+map md mkdir
+map mf mkfile
+map E extract
+map Z zip
+map T terminal
+map Y yank-path
+map <c-f> fzf_jump
+
+# Sorting
+map sn :set sortby natural; set info
+map ss :set sortby size; set info size
+map st :set sortby time; set info time
+map sa :set sortby atime; set info atime
+map sc :set sortby ctime; set info ctime
+map se :set sortby ext; set info
+
+# Toggle options
+map zr set reverse!
+map zi set icons!
+map zp set preview!

@@ -87,8 +87,8 @@ element alternate.normal {
 
 element-icon {
     background-color:   transparent;
-    size:               24px;
-    margin:             0 10px 0 0;
+    size:               28px;
+    cursor:             inherit;
 }
 
 element-text {

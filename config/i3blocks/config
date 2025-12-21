@@ -20,8 +20,8 @@ color=#e0af68
 interval=30
 
 [wifi]
-command=$HOME/.config/i3blocks/scripts/wifi-status.sh
-label= 
+command=$HOME/repo/i3-dotfile/scripts/wifi-status.sh
+label=󰤨 
 color=#7aa2f7
 interval=10
 
@@ -39,6 +39,6 @@ interval=60
 
 [time]
 command=date '+%H:%M'
-label=󰥔 
+label=󰅐 
 color=#c0caf5
 interval=5
