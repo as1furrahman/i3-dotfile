@@ -26,6 +26,13 @@ color=#7dcfff
 interval=1
 signal=10
 
+[mic]
+command=if [ "$BLOCK_BUTTON" = 1 ]; then wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle; fi; wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{if($3=="[MUTED]") {print "Muted"; exit} else {print int($2*100)"%"}}'
+label= 
+color=#bb9af7
+interval=5
+signal=11
+
 [wifi]
 command=$HOME/repo/i3-dotfile/scripts/wifi-status.sh
 label=󰤨 

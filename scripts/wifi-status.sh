@@ -3,12 +3,12 @@
 # Handles all edge cases: no device, radio off, disconnected, connected
 # Left click opens nmtui for network management
 
-# Handle click events
 case $BLOCK_BUTTON in
-    1) # Left click - open network manager
-        i3-msg -q "exec --no-startup-id kitty -e nmtui-connect" 2>/dev/null || \
-        i3-msg -q "exec --no-startup-id alacritty -e nmtui-connect" 2>/dev/null || \
-        i3-msg -q "exec --no-startup-id xterm -e nmtui-connect" 2>/dev/null
+    1) # Left click - Open Rofi WiFi Menu
+        $HOME/repo/i3-dotfile/scripts/rofi-wifi.sh >/dev/null 2>&1 &
+        ;;
+    3) # Right click - Toggle WiFi (Quick action)
+        nmcli radio wifi toggle >/dev/null 2>&1 &
         ;;
 esac
 
