@@ -59,7 +59,7 @@ entry {
 listview {
     background-color: transparent;
     scrollbar: true;
-    spacing: 5px;
+    spacing: 0px;
     lines: 50;
     fixed-height: true;
 }
@@ -73,8 +73,8 @@ scrollbar {
 
 element {
     background-color: transparent;
-    padding: 10px 15px;
-    border-radius: 6px;
+    padding: 2px 10px;
+    border-radius: 4px;
 }
 
 element normal.normal {

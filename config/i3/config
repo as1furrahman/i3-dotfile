@@ -166,6 +166,9 @@ bindsym $mod+Shift+d exec --no-startup-id rofi -show run -no-show-icons -font "C
 # AI Assistant (GPT-powered)
 bindsym $mod+a exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistant.sh"
 
+# Monitor Manager
+bindsym $mod+m exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/monitor-manager.sh"
+
 # File managers
 bindsym $mod+n exec $term -e $filemgr
 bindsym $mod+Shift+f exec --no-startup-id thunar
