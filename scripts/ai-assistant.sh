@@ -22,7 +22,6 @@ fi
 HISTORY_FILE="/tmp/ai_chat_history_$(date +%s).json"
 echo "[]" > "$HISTORY_FILE"
 
-# Initial empty history text
 # Initial history text
 HISTORY_TEXT="<span foreground='#565f89'><i>Type to chat... (Esc to close)</i></span>"
 
@@ -40,61 +39,39 @@ trap cleanup_rofi EXIT
 
 # Chat loop
 while true; do
-    # 1. Prepare display list from history
-    DISPLAY_LIST=""
+    # 1. Update History Display (Construct text for -mesg)
+    NEW_HISTORY_TEXT=""
+    # We use jq to parse, then fold to wrap lines
     while IFS= read -r line; do
         role=$(echo "$line" | jq -r .role)
         content=$(echo "$line" | jq -r .content)
         
-        # Wrap content
+        # Wrap content at 65 chars and escape Pango
         wrapped=$(echo "$content" | fold -s -w 65 | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
         
-        # Format each line for listview
         if [[ "$role" == "user" ]]; then
-            # Header line
-            DISPLAY_LIST+="<span foreground='#9ece6a'><b>User:</b></span>\n"
-            # Content lines
-            while IFS= read -r wline; do
-                DISPLAY_LIST+="$wline\n"
-            done <<< "$wrapped"
-            DISPLAY_LIST+="\n"
+            NEW_HISTORY_TEXT+="<span foreground=\"#9ece6a\"><b>User:</b></span>"$'\n'"$wrapped"$'\n\n'
         else
-            DISPLAY_LIST+="<span foreground='#c0caf5'><b>AI:</b></span>\n"
-            while IFS= read -r wline; do
-                DISPLAY_LIST+="$wline\n"
-            done <<< "$wrapped"
-            DISPLAY_LIST+="\n"
+            NEW_HISTORY_TEXT+="<span foreground=\"#c0caf5\"><b>AI:</b></span>"$'\n'"$wrapped"$'\n\n'
         fi
     done < <(jq -c '.[]' "$HISTORY_FILE")
 
-    # Calculate line count to scroll to bottom
-    LINE_COUNT=$(echo -e "$DISPLAY_LIST" | wc -l)
-    LAST_ROW=$((LINE_COUNT - 1))
-    [[ $LAST_ROW -lt 0 ]] && LAST_ROW=0
+    # If history is empty, show default prompt
+    if [[ -z "$NEW_HISTORY_TEXT" ]]; then
+        HISTORY_TEXT="<span foreground='#565f89'><i>Type to chat... (Esc to close)</i></span>"
+    else
+        HISTORY_TEXT="$NEW_HISTORY_TEXT"
+    fi
 
     # 2. Get User Input
-    # We feed the display list to rofi
-    QUERY=$(echo -e "$DISPLAY_LIST" | rofi -dmenu -p "󰧑 Input" -theme "$SIDEBAR_THEME" \
-        -mesg "<i>Type to chat... (Up/Down to scroll history)</i>" \
-        -markup-rows -selected-row $LAST_ROW)
+    # Pipe empty string to ensure rofi has stdin
+    QUERY=$(echo -n "" | rofi -dmenu -p "󰧑 Input" -theme "$SIDEBAR_THEME" -mesg "$HISTORY_TEXT" -lines 0)
     
     # Exit if empty
     [[ -z "$QUERY" ]] && break
     
-    # Check if user selected a history line
-    if echo "$DISPLAY_LIST" | grep -Fqx "$QUERY"; then
-        # User selected a history line. Copy to clipboard and restart loop
-        echo "$QUERY" | sed 's/<[^>]*>//g' | xclip -selection clipboard 2>/dev/null
-        continue
-    fi
-    
-    # 3. Show "Thinking..." state
-    (
-        echo -e "$DISPLAY_LIST" | rofi -dmenu -p "󰧑 Thinking" -theme "$SIDEBAR_THEME" \
-        -mesg "<i>Thinking...</i>" \
-        -markup-rows -selected-row $LAST_ROW >/dev/null 2>&1
-    ) &
-    THINK_PID=$!
+    # 3. Show "Thinking..." notification (avoids focus stealing crash)
+    notify-send -u low -t 3000 "AI Assistant" "Thinking..."
     
     # 4. Process API Request
     TEMP_HIST=$(mktemp)
@@ -109,15 +86,11 @@ while true; do
     TEMP_HIST=$(mktemp)
     jq --arg content "$ANSWER" '. + [{"role": "assistant", "content": $content}]' "$HISTORY_FILE" > "$TEMP_HIST" && mv "$TEMP_HIST" "$HISTORY_FILE"
     
-    # Kill "Thinking..." window specifically
-    kill "$THINK_PID" 2>/dev/null
-    wait "$THINK_PID" 2>/dev/null
-    
     # Copy to clipboard
     echo "$ANSWER" | xclip -selection clipboard 2>/dev/null
     
     # Safety delay
-    sleep 0.1
+    sleep 0.5
 done
 
 rm -f "$HISTORY_FILE"
