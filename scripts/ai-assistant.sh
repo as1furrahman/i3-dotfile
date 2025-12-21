@@ -87,9 +87,9 @@ while true; do
         wrapped=$(echo "$content" | fold -s -w 65 | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
         
         if [[ "$role" == "user" ]]; then
-            HISTORY_TEXT+="<span foreground=\"#9ece6a\"><b>User:</b></span>\n$wrapped\n\n"
+            HISTORY_TEXT+="<span foreground=\"#9ece6a\"><b>User:</b></span>"$'\n'"$wrapped"$'\n\n'
         else
-            HISTORY_TEXT+="<span foreground=\"#c0caf5\"><b>AI:</b></span>\n$wrapped\n\n"
+            HISTORY_TEXT+="<span foreground=\"#c0caf5\"><b>AI:</b></span>"$'\n'"$wrapped"$'\n\n'
         fi
     done <<< "$MESSAGES"
 
