@@ -34,7 +34,7 @@ readonly PACKAGES=(
     # Launcher and notifications
     rofi dunst clipman
     # Applications
-    pass zathura firefox-esr evince mpv
+    pass zathura evince mpv
     # Notifications
     libnotify-bin
     # Audio (Pipewire)
@@ -52,7 +52,7 @@ readonly PACKAGES=(
     # Utilities
     dex arandr imagemagick curl wget git unzip fontconfig p7zip-full unrar
     xss-lock maim xclip brightnessctl xinput playerctl pkexec lxpolkit
-    acpi cheese jq feh fzf atool trash-cli
+    acpi cheese jq feh fzf atool trash-cli flatpak
 
     bat ripgrep fd-find eza build-essential gfortran cmake
 )
@@ -145,9 +145,39 @@ install_fonts() {
     success "Font cache updated"
 }
 
+install_zen_browser() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Installing Zen Browser (via Flatpak)${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    # Add Flathub repository if not already added
+    if ! flatpak remote-list | grep -q flathub; then
+        log "Adding Flathub repository..."
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        success "Flathub repository added"
+    else
+        log "Flathub repository already configured"
+    fi
+    
+    # Install Zen Browser
+    log "Installing Zen Browser from Flathub..."
+    if flatpak install -y flathub io.github.zen_browser.zen 2>&1 | tee -a "$LOG_FILE"; then
+        success "Zen Browser installed"
+        
+        # Create desktop symlink for easier launching
+        log "Creating zen-browser command alias..."
+        sudo bash -c 'echo "#!/bin/bash" > /usr/local/bin/zen-browser && echo "flatpak run io.github.zen_browser.zen \"\$@\"" >> /usr/local/bin/zen-browser && chmod +x /usr/local/bin/zen-browser'
+        success "zen-browser command created"
+    else
+        warn "Failed to install Zen Browser"
+    fi
+}
+
 # Main execution
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     enable_repositories
     install_packages
     install_fonts
+    install_zen_browser
 fi

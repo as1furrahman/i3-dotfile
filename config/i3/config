@@ -232,8 +232,8 @@ bindsym $mod+p exec $term -e pass
 # Projects folder
 bindsym $mod+Shift+p exec $term -e zsh -ic "cd ~/projects && zsh"
 
-# Browser
-bindsym $mod+w exec --no-startup-id firefox-esr
+# Browser (Zen Browser)
+bindsym $mod+w exec --no-startup-id zen-browser
 
 
 
@@ -376,5 +376,5 @@ exec --no-startup-id $HOME/.config/i3/scripts/time-setup.sh
 # Wallpaper
 exec_always --no-startup-id "$HOME/.config/i3/scripts/wallpaper_manager.sh"
 
-# Open terminal on workspace 1
-exec --no-startup-id i3-msg 'workspace 1; exec alacritty'
+# Open terminal on workspace 1 at startup (with delay to ensure i3 is ready)
+exec --no-startup-id sleep 0.5 && alacritty
