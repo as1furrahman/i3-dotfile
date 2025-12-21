@@ -116,7 +116,7 @@ show_menu() {
     echo "8. Install GRUB Theme"
     echo "9. Exit"
     echo ""
-    read -r -p "Enter choice [1-8]: " choice
+    read -r -p "Enter choice [1-9]: " choice
     
     case $choice in
         1) full_install ;;

@@ -9,8 +9,6 @@ alias notes='cd ~/Documents/notes && nvim .'
 
 # Container workflows
 alias thesis-box='distrobox enter thesis'
-alias ml-box='distrobox enter mlai'
-alias matlab-box='distrobox enter matlab'
 
 # Development
 alias py='python3'
@@ -47,12 +45,12 @@ alias powersave='powerprofilesctl set power-saver'
 alias balanced='powerprofilesctl set balanced'
 alias performance='powerprofilesctl set performance'
 
-# Clipboard (Wayland)
-alias clip='wl-copy'
-alias paste='wl-paste'
+# Clipboard (X11)
+alias clip='xclip -selection clipboard'
+alias paste='xclip -selection clipboard -o'
 
-# Screenshot (Wayland/GNOME)
-alias screenshot='gnome-screenshot -i'
+# Screenshot (X11/i3)
+alias screenshot='$HOME/.config/i3/scripts/screenshot.sh'
 
 # Systemd user services
 alias scu='systemctl --user'

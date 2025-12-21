@@ -172,7 +172,6 @@ bindsym $mod+F10 exec --no-startup-id $HOME/.config/i3/scripts/webcam-soft-toggl
 bindsym XF86Bluetooth exec --no-startup-id $HOME/.config/i3/scripts/rofi-bluetooth.sh
 
 # WiFi Toggle
-# WiFi Toggle
 bindsym XF86WLAN exec --no-startup-id $HOME/.config/i3/scripts/wifi_toggle.sh
 
 # Media Controls
@@ -197,7 +196,6 @@ bindsym F10 exec --no-startup-id rofi -show window -font "Cascadia Code 13"
 bindsym $mod+Shift+d exec --no-startup-id rofi -show run -no-show-icons -font "Cascadia Code 13"
 
 # AI Assistant (GPT-powered)
-bindsym F12 exec --no-startup-id "$HOME/.config/i3/scripts/ai-assistant.sh"
 bindsym $mod+F12 exec --no-startup-id "$HOME/.config/i3/scripts/ai-assistant.sh"
 
 # Monitor Manager

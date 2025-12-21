@@ -30,7 +30,7 @@ readonly PACKAGES=(
     # System monitors
     btop htop
     # Editors
-    neovim
+    neovim micro
     # Launcher and notifications
     rofi dunst clipman
     # Applications
@@ -43,14 +43,12 @@ readonly PACKAGES=(
     firmware-linux firmware-linux-nonfree firmware-amd-graphics amd64-microcode
     firmware-sof-signed firmware-iwlwifi
     # System
-    bluez network-manager tlp tlp-rdw powertop power-profiles-daemon
+    bluez network-manager tlp tlp-rdw powertop
     # Fonts and themes
     fonts-cascadia-code fonts-jetbrains-mono fonts-firacode
     fonts-noto-core fonts-noto-color-emoji
     fonts-liberation2 fonts-dejavu-core
     fonts-font-awesome papirus-icon-theme arc-theme
-    # Theme building dependencies
-    sassc libglib2.0-dev libxml2-utils
     # Utilities
     dex arandr imagemagick curl wget git unzip fontconfig p7zip-full unrar
     xss-lock maim xclip brightnessctl xinput playerctl pkexec lxpolkit

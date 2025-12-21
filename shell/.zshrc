@@ -1,5 +1,5 @@
 # ============================================
-# Zsh Configuration for Debian 13 + GNOME
+# Zsh Configuration for Debian 13 + i3
 # Optimized for Asus Zenbook S 13 OLED
 # ============================================
 
