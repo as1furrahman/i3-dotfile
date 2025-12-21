@@ -164,8 +164,9 @@ bindsym XF86Display exec --no-startup-id $HOME/repo/i3-dotfile/scripts/monitor-m
 # Touchpad Toggle
 bindsym XF86TouchpadToggle exec --no-startup-id $HOME/.config/i3/scripts/touchpad-toggle.sh
 
-# WebCam Toggle
-bindsym XF86WebCam exec --no-startup-id $HOME/.config/i3/scripts/webcam-toggle.sh
+# WebCam Toggle (Software Block)
+bindsym XF86WebCam exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/webcam-soft-toggle.sh
+bindsym $mod+F10 exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/webcam-soft-toggle.sh
 
 # Bluetooth
 bindsym XF86Bluetooth exec --no-startup-id $HOME/repo/i3-dotfile/scripts/rofi-bluetooth.sh
@@ -179,6 +180,11 @@ bindsym XF86AudioNext exec --no-startup-id playerctl next
 bindsym XF86AudioPrev exec --no-startup-id playerctl previous
 bindsym XF86AudioStop exec --no-startup-id playerctl stop
 
+# Screenshot
+bindsym Print exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/screenshot.sh select
+bindsym $mod+F11 exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/screenshot.sh select
+bindsym Shift+Print exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/screenshot.sh
+
 # ============================================================================
 # KEYBINDINGS - APPLICATIONS
 # ============================================================================
@@ -190,10 +196,15 @@ bindsym F10 exec --no-startup-id rofi -show window -font "Cascadia Code 13"
 bindsym $mod+Shift+d exec --no-startup-id rofi -show run -no-show-icons -font "Cascadia Code 13"
 
 # AI Assistant (GPT-powered)
-bindsym $mod+a exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistant.sh"
+# bindsym $mod+a exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistant.sh"
+bindsym F12 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistant.sh"
+bindsym $mod+F12 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistant.sh"
 
 # Monitor Manager
 bindsym $mod+m exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/monitor-manager.sh"
+
+# Camera (cheese)
+bindsym $mod+c exec --no-startup-id cheese
 
 # File managers
 bindsym $mod+n exec $term -e $filemgr
@@ -211,8 +222,7 @@ bindsym $mod+Shift+p exec $term -e zsh -ic "cd ~/projects && zsh"
 # Browser
 bindsym $mod+w exec --no-startup-id firefox-esr
 
-# Screenshot
-bindsym Print exec --no-startup-id "$HOME/.config/i3/scripts/screenshot.sh"
+
 
 # Config editing
 bindsym $mod+F1 exec $term -e $editor ~/.config/i3/config
@@ -344,6 +354,7 @@ exec --no-startup-id $HOME/repo/i3-dotfile/scripts/rofi-bluetooth.sh autoconnect
 exec --no-startup-id dex --autostart --environment i3
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 exec --no-startup-id nm-applet
+exec --no-startup-id lxpolkit
 exec --no-startup-id xset s 300 300
 
 # Automatic Timezone Setup

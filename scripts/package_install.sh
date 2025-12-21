@@ -34,7 +34,9 @@ readonly PACKAGES=(
     # Launcher and notifications
     rofi dunst clipman
     # Applications
-    pass zathura firefox-esr evince
+    pass zathura firefox-esr evince mpv cheese
+    # Notifications
+    libnotify-bin
     # Audio (Pipewire)
     pipewire pipewire-pulse wireplumber pavucontrol pulseaudio-utils
     # Firmware and drivers
@@ -49,7 +51,7 @@ readonly PACKAGES=(
     fonts-font-awesome papirus-icon-theme arc-theme
     # Utilities
     dex arandr imagemagick curl wget git unzip fontconfig
-    xss-lock maim xclip brightnessctl xinput playerctl
+    xss-lock maim xclip brightnessctl xinput playerctl pkexec lxpolkit
 
     bat ripgrep fd-find build-essential gfortran cmake
     podman distrobox
