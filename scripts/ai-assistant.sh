@@ -47,7 +47,7 @@ while true; do
         content=$(echo "$line" | jq -r .content)
         
         # Wrap content
-        wrapped=$(echo "$content" | fold -s -w 65)
+        wrapped=$(echo "$content" | fold -s -w 65 | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
         
         # Format each line for listview
         if [[ "$role" == "user" ]]; then
