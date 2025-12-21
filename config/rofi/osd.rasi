@@ -1,0 +1,46 @@
+/**
+ * Tokyo Night OSD - Minimal On-Screen Display
+ **/
+
+* {
+    bg: #1a1b26;
+    fg: #c0caf5;
+    accent: #7aa2f7;
+    
+    background-color: transparent;
+    text-color: @fg;
+    font: "Cascadia Code 11";
+}
+
+window {
+    location: bottom;
+    anchor: bottom;
+    y-offset: -100px;
+    width: 200px;
+    height: 40px;
+    
+    background-color: @bg;
+    border: 1px;
+    border-color: @accent;
+    border-radius: 8px;
+    
+    children: [ mainbox ];
+}
+
+mainbox {
+    children: [ listview ];
+}
+
+listview {
+    layout: horizontal;
+}
+
+element {
+    padding: 8px;
+    horizontal-align: 0.5;
+}
+
+element-text {
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}
