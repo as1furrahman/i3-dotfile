@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # AI Assistant for i3 using OpenAI GPT API
-# Triggered via rofi, displays response in notification
+# Triggered via rofi, displays response in rofi popup
 # 
 # Setup: Set your API key as environment variable:
 #   export OPENAI_API_KEY="your-api-key"
@@ -14,7 +14,7 @@ MAX_TOKENS=500
 
 # Check for API key
 if [[ -z "$API_KEY" ]]; then
-    notify-send -u critical "AI Assistant" "OPENAI_API_KEY not set!\nAdd to ~/.zshrc:\nexport OPENAI_API_KEY=\"your-key\""
+    echo "OPENAI_API_KEY not set! Add to ~/.zshrc" | rofi -dmenu -p "󰀩 Error" -theme-str 'window {width: 50%;}'
     exit 1
 fi
 
@@ -23,9 +23,6 @@ QUERY=$(rofi -dmenu -p "󰧑 Ask AI" -theme-str 'window {width: 50%;} listview {
 
 # Exit if no input
 [[ -z "$QUERY" ]] && exit 0
-
-# Show thinking notification
-notify-send -t 2000 "AI Assistant" "Thinking..."
 
 # Escape query for JSON
 ESCAPED_QUERY=$(echo "$QUERY" | jq -Rs '.')
@@ -49,7 +46,7 @@ if [[ -z "$ANSWER" || "$ANSWER" == "null" ]]; then
 fi
 
 # Display response in rofi (scrollable)
-echo "$ANSWER" | rofi -dmenu -p "󰧑 AI Response" -theme-str 'window {width: 60%;} listview {lines: 15;}'
+echo "$ANSWER" | rofi -dmenu -p "󰧑 AI" -theme-str 'window {width: 60%;} listview {lines: 15;}'
 
 # Also copy to clipboard
 echo "$ANSWER" | xclip -selection clipboard 2>/dev/null || echo "$ANSWER" | wl-copy 2>/dev/null
