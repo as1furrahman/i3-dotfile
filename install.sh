@@ -99,6 +99,13 @@ full_install() {
     deploy_configs
     run_post_install
     
+    # GRUB Theme (optional, requires sudo)
+    echo ""
+    read -r -p "Install GRUB theme? [y/N]: " grub_choice
+    if [[ "$grub_choice" =~ ^[Yy]$ ]]; then
+        sudo bash "$SCRIPTS_DIR/install_grub_theme.sh"
+    fi
+    
     header "Installation Complete!"
     echo "Please reboot your system."
 }

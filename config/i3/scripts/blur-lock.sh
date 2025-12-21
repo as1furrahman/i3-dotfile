@@ -13,10 +13,10 @@ fi
 
 # Lock screen
 if [[ -f "$TMPBG" ]]; then
-    i3lock -i "$TMPBG" -c 1a1b26
+    i3lock-fancy -i "$TMPBG"
 else
     # Fallback: solid color lock
-    i3lock -c 1a1b26
+    i3lock-fancy
 fi
 
 # Cleanup

@@ -350,6 +350,12 @@ bar {
 # AUTOSTART
 # ============================================================================
 
+# Compositor (for blur, transparency, rounded corners)
+exec --no-startup-id picom -b
+
+# Reset cursor to normal arrow (fixes loading cursor issue)
+exec --no-startup-id xsetroot -cursor_name left_ptr
+
 # Notifications
 exec --no-startup-id dunst
 
@@ -357,9 +363,9 @@ exec --no-startup-id dunst
 # exec --no-startup-id wl-paste -t text --watch clipman store 2>/dev/null || clipman store &
 
 # Startup applications
-exec --no-startup-id $HOME/.config/i3/scripts/rofi-bluetooth.sh autoconnect
+exec --no-startup-id bash -c '$HOME/.config/i3/scripts/rofi-bluetooth.sh autoconnect &'
 exec --no-startup-id dex --autostart --environment i3
-exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
+exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock-fancy --nofork
 exec --no-startup-id nm-applet
 exec --no-startup-id lxpolkit
 exec --no-startup-id xset s 300 300

@@ -110,15 +110,15 @@ cmd targz %{{
 
 # Copy path to clipboard
 cmd yank-path ${{
-    printf '%s' "$fx" | wl-copy
+    printf '%s' "$fx" | xclip -selection clipboard
 }}
 
 cmd yank-dirname ${{
-    dirname -- "$f" | head -c-1 | wl-copy
+    dirname -- "$f" | head -c-1 | xclip -selection clipboard
 }}
 
 cmd yank-basename ${{
-    basename -a -- $fx | head -c-1 | wl-copy
+    basename -a -- $fx | head -c-1 | xclip -selection clipboard
 }}
 
 # Open terminal in current directory

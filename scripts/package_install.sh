@@ -52,7 +52,7 @@ readonly PACKAGES=(
     # Utilities
     dex arandr imagemagick curl wget git unzip fontconfig p7zip-full unrar
     xss-lock maim xclip brightnessctl xinput playerctl pkexec lxpolkit
-    acpi cheese jq
+    acpi cheese jq feh fzf atool trash-cli
 
     bat ripgrep fd-find eza build-essential gfortran cmake
 )
