@@ -268,7 +268,7 @@ exec_always --no-startup-id "$HOME/.config/i3/scripts/touchpad.sh"
 bar {
     status_command i3blocks
     position top
-    font pango:Cascadia Code, Symbols Nerd Font 11
+    font pango:Cascadia Code NF 14
     
     colors {
         background $bg

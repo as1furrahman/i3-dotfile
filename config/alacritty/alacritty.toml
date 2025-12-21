@@ -16,7 +16,7 @@ history = 10000
 multiplier = 3
 
 [font]
-size = 11.0
+size = 14.0
 
 [font.normal]
 family = "Cascadia Code"
