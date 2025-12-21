@@ -317,6 +317,9 @@ exec --no-startup-id nm-applet
 exec --no-startup-id xss-lock --transfer-sleep-lock -- "$HOME/.config/i3/scripts/blur-lock.sh"
 exec --no-startup-id xset s 300 300
 
+# Automatic Timezone Setup
+exec --no-startup-id ~/repo/i3-dotfile/scripts/time-setup.sh
+
 # Wallpaper
 exec_always --no-startup-id "$HOME/.config/i3/scripts/wallpaper_manager.sh"
 
