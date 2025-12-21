@@ -61,8 +61,7 @@ post_install_checklist() {
     echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo "1. Reboot your system to apply all changes."
     echo "2. Log in and run 'startx' to launch i3."
-    echo "3. Press Mod+Shift+?, check docs, or read KEYBINDINGS.md for help."
-    echo "4. Run 'distrobox_setup.sh' if you haven't already."
+    echo "3. Press Mod+Shift+?, check docs, or read README for help."
     echo ""
 }
 

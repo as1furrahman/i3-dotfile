@@ -65,7 +65,7 @@ run_backup() { bash "$SCRIPTS_DIR/backup.sh"; }
 run_packages() { bash "$SCRIPTS_DIR/package_install.sh"; }
 run_hardware() { bash "$SCRIPTS_DIR/hardware_setup.sh"; }
 run_post_install() { bash "$SCRIPTS_DIR/post_install.sh"; }
-run_distrobox() { bash "$SCRIPTS_DIR/distrobox_setup.sh"; }
+run_post_install() { bash "$SCRIPTS_DIR/post_install.sh"; }
 
 deploy_configs() {
     header "Deploying Config Files"
@@ -122,10 +122,10 @@ show_menu() {
     echo "4. Hardware Setup Only"
     echo "5. Post-Install Setup Only"
     echo "6. Backup Existing Configs"
-    echo "7. Setup Distrobox"
-    echo "8. Exit"
+    echo "6. Backup Existing Configs"
+    echo "7. Exit"
     echo ""
-    read -r -p "Enter choice [1-8]: " choice
+    read -r -p "Enter choice [1-7]: " choice
     
     case $choice in
         1) full_install ;;
@@ -134,8 +134,8 @@ show_menu() {
         4) check_requirements; run_hardware ;;
         5) check_requirements; run_post_install ;;
         6) check_requirements; run_backup ;;
-        7) check_requirements; run_distrobox ;;
-        8) exit 0 ;;
+        6) check_requirements; run_backup ;;
+        7) exit 0 ;;
         *) echo "Invalid option"; sleep 1; show_menu ;;
     esac
 }

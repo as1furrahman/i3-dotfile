@@ -9,7 +9,7 @@ A production-ready, modular dotfiles repository designed for a minimal, terminal
 
 ```bash
 sudo apt install git -y
-git clone https://github.com/yourusername/dotfiles.git
+git clone https://github.com/as1furrahman/dotfiles.git
 cd dotfiles
 chmod +x install.sh
 ./install.sh
@@ -17,31 +17,66 @@ chmod +x install.sh
 
 ## Features
 
-- **Window Manager**: i3-gaps with smart borders and Tokyo Night theme.
-- **Terminal**: Alacritty (GPU-accelerated) + Zsh + Powerlevel10k styling.
+- **Window Manager**: i3-wm with smart borders and Tokyo Night theme.
+- **Terminal**: Alacritty + Zsh + Tokyo Night styling.
 - **Power Management**: TLP, Pipewire, and custom sleep/lock scripts.
-- **Hardware Support**: Optimized for AMD Ryzen 6800U and OLED screens (burn-in protection).
+- **Hardware Support**: Optimized for AMD Ryzen 6800U and OLED screens.
 - **Workflow**: `lf` file manager, `nvim` editor, `rofi` launcher.
-- **Containers**: Distrobox setup for Thesis (Ubuntu), ML/AI (Arch), and Legacy (Ubuntu 22.04).
 
-## Structure
+## Installation
 
-- `install.sh`: Interactive menu-driven installer.
-- `config/`: Configuration files (symlinked to `~/.config`).
-- `scripts/`: Modular setup scripts.
-- `docs/`: Detailed documentation.
+Run `./install.sh` to see the interactive menu:
 
-## Documentation
+1. **Full Installation**: Recommended for fresh installs.
+2. **Packages Only**: Installs `apt` packages, fonts, and dependencies.
+3. **Configs Only**: Deploys dotfiles to `~/.config`.
+4. **Hardware Setup**: Configures TLP, Pipewire, and system optimizations.
+5. **Post-Install**: Sets up directories and Git.
+6. **Backup**: Backs up current `~/.config` to `~/.config_backup_TIMESTAMP`.
 
-- [Installation Guide](docs/INSTALL.md)
-- [Keyboard Shortcuts](docs/KEYBINDINGS.md)
-- [Customization](docs/CUSTOMIZATION.md)
-- [Troubleshooting](docs/TROUBLESHOOTING.md)
-- [Icons Reference](docs/ICONS.md)
+### BIOS Settings (Critical)
+- **VMD Controller**: DISABLED
+- **Secure Boot**: DISABLED
+- **Fast Boot**: DISABLED
 
-## Screenshots
+## Keyboard Shortcuts
 
-*(Add screenshots here)*
+| Keybinding | Action |
+|------------|--------|
+| `Mod+Return` | Open Terminal (Alacritty) |
+| `Mod+Shift+Return` | Open Floating Terminal |
+| `Mod+Shift+e` | Power Menu (Lock/Suspend/Reboot/etc) |
+| `Mod+l` | Lock Screen |
+| `Mod+c` | Close Window |
+| `Mod+Shift+c` | Reload i3 Config |
+| `Mod+Shift+r` | Restart i3 |
+| `Mod+j/k/b/o` | Focus Left/Down/Up/Right |
+| `Mod+Shift+j/k/b/o` | Move Window |
+| `F9` | App Launcher (Rofi) |
+| `F10` | Window Switcher |
+| `Mod+n` | File Manager (lf) |
+| `Mod+Shift+f` | File Manager (Thunar) |
+| `Mod+w` | Browser (Firefox) |
+| `Mod+p` | Password Manager (pass) |
+| `Print` | Screenshot |
+
+## Customization
+
+### Colors & Appearance
+The system uses the **Tokyo Night** color scheme.
+- **i3**: Edit `~/.config/i3/config` (Variables at the top).
+- **Alacritty**: Edit `~/.config/alacritty/alacritty.toml`.
+- **Wallpaper**: Place images in `~/wallpapers/` and edit `~/.config/i3/scripts/wallpaper_manager.sh`.
+
+### Fonts
+Primary font is **Cascadia Code**. Fallback is **Nerd Fonts**.
+- Configured in `i3/config`, `alacritty.toml`, and `rofi/config.rasi`.
+
+## Troubleshooting
+
+- **Audio**: Missing? Run `systemctl --user restart pipewire pipewire-pulse wireplumber`.
+- **Brightness**: Ensure your user is in the `video` group: `sudo usermod -aG video $USER`.
+- **Monitors**: Run `arandr` to configure and save as `~/.screenlayout/monitor.sh`.
 
 ## License
 
