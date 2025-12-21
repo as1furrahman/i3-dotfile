@@ -31,9 +31,19 @@ configure_pipewire() {
             sudo apt purge -y pulseaudio >> "$LOG_FILE" 2>&1 || true
         fi
         
+        # Install utils
+        log "Installing audio utilities..."
+        sudo apt install -y pulseaudio-utils alsa-utils wireplumber pipewire-pulse >> "$LOG_FILE" 2>&1 || true
+
         # Enable Pipewire services
         log "Enabling Pipewire services..."
         systemctl --user enable --now pipewire pipewire-pulse wireplumber 2>/dev/null || true
+        
+        # Ensure audio is unmuted and has volume
+        log "Setting default volume..."
+        wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null || true
+        wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.6 2>/dev/null || true
+        
         success "Pipewire configured"
     else
         warn "Pipewire not installed. Skipping."
@@ -70,7 +80,13 @@ hardware_report() {
     echo -e "${BLUE}  Hardware Status Report${NC}"
     echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     
-    echo "Audio Server: $(pactl info 2>/dev/null | grep "Server Name" || echo "Unknown")"
+    local audio_server="Unknown"
+    if command -v pactl &>/dev/null; then
+        audio_server=$(pactl info 2>/dev/null | grep "Server Name" | cut -d: -f2 | xargs || echo "Unknown")
+    elif command -v wpctl &>/dev/null; then
+        audio_server=$(wpctl status | grep "PipeWire" | head -n1 | xargs || echo "PipeWire (wpctl)")
+    fi
+    echo "Audio Server: $audio_server"
     echo "Power Mgmt:   $(systemctl is-active tlp)"
     echo "Swappiness:   $(cat /proc/sys/vm/swappiness)"
     echo ""
