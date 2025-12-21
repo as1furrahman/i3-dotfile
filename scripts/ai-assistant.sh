@@ -23,7 +23,8 @@ HISTORY_FILE="/tmp/ai_chat_history_$(date +%s).json"
 echo "[]" > "$HISTORY_FILE"
 
 # Initial empty history text
-HISTORY_TEXT="<b>Possible Commands:</b>\n- Type your question and press Enter\n- Press Esc to close\n- History is saved for this session"
+# Initial history text
+HISTORY_TEXT="<span foreground='#565f89'><i>Type to chat... (Esc to close)</i></span>"
 
 # Function to strictly kill previous rofi instances
 cleanup_rofi() {
