@@ -37,9 +37,7 @@ Run `./install.sh` to see the interactive menu:
 6. **Backup**: Backs up current `~/.config` to `~/.config_backup_TIMESTAMP`.
 
 ### BIOS Settings (Critical)
-- **VMD Controller**: DISABLED
 - **Secure Boot**: DISABLED
-- **Fast Boot**: DISABLED
 
 ## Keyboard Shortcuts
 
