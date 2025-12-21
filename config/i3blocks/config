@@ -3,57 +3,57 @@ separator_block_width=15
 
 [memory]
 command=free -h | awk '/^Mem:/ {print $3 "/" $2}'
-label=󰍛 
+label=MEM 
 color=#7aa2f7
 interval=10
 
 [cpu]
 command=grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {printf "%.0f%%", usage}'
-label=󰻠 
+label=CPU 
 color=#9ece6a
 interval=5
 
 [disk]
 command=df -h / | awk 'NR==2 {print $3 "/" $2}'
-label=󰋊 
+label=DSK 
 color=#e0af68
 interval=30
 
 [volume]
 command=if [ "$BLOCK_BUTTON" = 1 ]; then i3-msg exec pavucontrol; fi; wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{vol = int($2 * 100); print vol "%"}'
-label= 
+label=VOL 
 color=#7dcfff
 interval=1
 signal=10
 
 [mic]
-command=if [ "$BLOCK_BUTTON" = 1 ]; then wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle; fi; wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{if($3=="[MUTED]") {print "Muted"; exit} else {print int($2*100)"%"}}'
-label= 
+command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/repo/i3-dotfile/scripts/mic-toggle.sh; fi; wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{if($3=="[MUTED]") {print "Muted"; exit} else {print int($2*100)"%"}}'
+label=MIC 
 color=#bb9af7
 interval=5
 signal=11
 
 [wifi]
 command=$HOME/repo/i3-dotfile/scripts/wifi-status.sh
-label=󰤨 
+label=NET 
 color=#7aa2f7
 interval=10
 
 [bluetooth]
 command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/repo/i3-dotfile/scripts/rofi-bluetooth.sh >/dev/null 2>&1 & fi; if bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then echo "On"; else echo "Off"; fi
-label=󰂯 
+label=BT 
 color=#7aa2f7
 interval=5
 
 
 [battery]
 command=acpi -b | awk -F', ' '{printf "%s%s\n", $2, ($1 ~ /Charging/ ? "+" : "")}'
-label=󰁹 
+label=BAT 
 color=#bb9af7
 interval=30
 
 [time]
 command=date '+%H:%M'
-label=󰅐 
+label=TIME 
 color=#c0caf5
 interval=5

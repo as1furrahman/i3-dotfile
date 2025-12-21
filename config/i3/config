@@ -147,7 +147,7 @@ bindsym $mod+space focus mode_toggle
 bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+ && pkill -RTMIN+10 i3blocks
 bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -RTMIN+10 i3blocks
 bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -RTMIN+10 i3blocks
-bindsym XF86AudioMicMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle && pkill -RTMIN+11 i3blocks
+bindsym XF86AudioMicMute exec --no-startup-id $HOME/repo/i3-dotfile/scripts/mic-toggle.sh
 
 # Brightness
 bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
@@ -191,7 +191,7 @@ bindsym Shift+Print exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts
 
 # Launchers
 bindsym $mod+d exec --no-startup-id $launcher
-bindsym F9 exec --no-startup-id $launcher
+
 bindsym F10 exec --no-startup-id rofi -show window -font "Cascadia Code 13"
 bindsym $mod+Shift+d exec --no-startup-id rofi -show run -no-show-icons -font "Cascadia Code 13"
 
@@ -202,6 +202,21 @@ bindsym $mod+F12 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistan
 
 # Monitor Manager
 bindsym $mod+m exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/monitor-manager.sh"
+
+# ============================================================================
+# FUNCTION KEYS FALLBACK (For when XF86 keys aren't detected or with Shift)
+# ============================================================================
+bindsym Shift+F1 exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -RTMIN+10 i3blocks
+bindsym Shift+F2 exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -RTMIN+10 i3blocks
+bindsym Shift+F3 exec --no-startup-id wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+ && pkill -RTMIN+10 i3blocks
+bindsym Shift+F4 exec --no-startup-id brightnessctl set 5%-
+bindsym Shift+F5 exec --no-startup-id brightnessctl set +5%
+bindsym Shift+F6 exec --no-startup-id "$HOME/.config/i3/scripts/touchpad-toggle.sh"
+bindsym Shift+F7 exec --no-startup-id brightnessctl -d asus::kbd_backlight set +33%
+bindsym Shift+F8 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/monitor-manager.sh"
+bindsym Shift+F9 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/mic-toggle.sh"
+bindsym Shift+F10 exec --no-startup-id "$HOME/repo/i3-dotfile/config/i3/scripts/webcam-soft-toggle.sh"
+
 
 # Camera (cheese)
 bindsym $mod+c exec --no-startup-id cheese
@@ -271,6 +286,13 @@ for_window [window_role="task_dialog"] floating enable
 for_window [class="feh"] floating enable
 for_window [urgent=latest] focus
 
+# File Picker / Open File Dialogs (Fix for gray screen)
+for_window [class="xdg-desktop-portal-gtk"] floating enable, resize set 900 600, move position center
+for_window [class="org.freedesktop.impl.portal.desktop.gtk"] floating enable, resize set 900 600, move position center
+for_window [title="Open File"] floating enable, resize set 900 600, move position center
+for_window [title="Save File"] floating enable, resize set 900 600, move position center
+for_window [window_role="GtkFileChooserDialog"] floating enable, resize set 900 600, move position center
+
 # ============================================================================
 # RESIZE MODE
 # ============================================================================
@@ -310,7 +332,7 @@ exec_always --no-startup-id "$HOME/.config/i3/scripts/touchpad.sh"
 bar {
     status_command i3blocks
     position top
-    font pango:Cascadia Code NF 14
+    font pango:Cascadia Code 11
     
     colors {
         background $bg

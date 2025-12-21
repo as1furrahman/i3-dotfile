@@ -20,10 +20,11 @@ chmod +x install.sh
 ## Features
 
 - **Window Manager**: i3-wm with smart borders and Tokyo Night theme.
-- **Terminal**: Alacritty + Zsh + Tokyo Night styling.
+- **Terminal**: Alacritty + Zsh (Tokyo Night Theme) + `eza` + `bat`.
 - **Power Management**: TLP, Pipewire, and custom sleep/lock scripts.
 - **Hardware Support**: Optimized for AMD Ryzen 6800U and OLED screens.
 - **Workflow**: `lf` file manager, `nvim` editor, `rofi` launcher.
+- **Boot**: Minimal GRUB theme (Breeze).
 
 ## Installation
 

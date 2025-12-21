@@ -50,10 +50,10 @@ readonly PACKAGES=(
     fonts-liberation2 fonts-dejavu-core
     fonts-font-awesome papirus-icon-theme arc-theme
     # Utilities
-    dex arandr imagemagick curl wget git unzip fontconfig
+    dex arandr imagemagick curl wget git unzip fontconfig p7zip-full unrar
     xss-lock maim xclip brightnessctl xinput playerctl pkexec lxpolkit
 
-    bat ripgrep fd-find build-essential gfortran cmake
+    bat ripgrep fd-find eza build-essential gfortran cmake
     podman distrobox
 )
 

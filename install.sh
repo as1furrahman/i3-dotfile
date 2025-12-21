@@ -124,9 +124,10 @@ show_menu() {
     echo "5. Post-Install Setup Only"
     echo "6. Backup Existing Configs"
     echo "6. Backup Existing Configs"
-    echo "7. Exit"
+    echo "7. Install GRUB Theme"
+    echo "8. Exit"
     echo ""
-    read -r -p "Enter choice [1-7]: " choice
+    read -r -p "Enter choice [1-8]: " choice
     
     case $choice in
         1) full_install ;;
@@ -135,8 +136,8 @@ show_menu() {
         4) check_requirements; run_hardware ;;
         5) check_requirements; run_post_install ;;
         6) check_requirements; run_backup ;;
-        6) check_requirements; run_backup ;;
-        7) exit 0 ;;
+        7) sudo bash "$SCRIPTS_DIR/install_grub_theme.sh" ;;
+        8) exit 0 ;;
         *) echo "Invalid option"; sleep 1; show_menu ;;
     esac
 }

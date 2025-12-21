@@ -47,21 +47,36 @@ export MOZ_ENABLE_WAYLAND=1
 export QT_QPA_PLATFORM="wayland;xcb"
 
 # ============================================
-# Prompt Configuration
+# Prompt Configuration (ArchCraft Theme)
 # ============================================
-# Simple, clean prompt: [user@host:pwd]$
 autoload -U colors && colors
 setopt PROMPT_SUBST
 
-# Tokyo Night inspired prompt colors
-PROMPT='%F{cyan}[%f%F{green}%n%f%F{cyan}@%f%F{magenta}%m%f%F{cyan}:%f%F{blue}%~%f%F{cyan}]%f%F{yellow}$%f '
+# Helper variables for the theme (Tokyo Night Minimal)
+# Green -> #9ece6a, Yellow -> #e0af68, Red -> #f7768e, Cyan -> #7dcfff, Blue -> #7aa2f7, Gray -> #565f89
+ZSH_THEME_GIT_PROMPT_PREFIX=" %F{#565f89}(%F{#9ece6a}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="%F{#565f89})%f"
+ZSH_THEME_GIT_PROMPT_DIRTY=" %F{#e0af68}•%f"
+ZSH_THEME_GIT_PROMPT_CLEAN=""
 
-# Right prompt shows git branch if in repo
-autoload -Uz vcs_info
-precmd_vcs_info() { vcs_info }
-precmd_functions+=( precmd_vcs_info )
-zstyle ':vcs_info:git:*' formats '%F{yellow}(%b)%f'
-RPROMPT='${vcs_info_msg_0_}'
+# Git Status Functions
+parse_git_dirty() {
+  if [[ -n $(git status --porcelain 2> /dev/null) ]]; then
+    echo "$ZSH_THEME_GIT_PROMPT_DIRTY"
+  else
+    echo "$ZSH_THEME_GIT_PROMPT_CLEAN"
+  fi
+}
+
+git_prompt_info() {
+  ref=$(git symbolic-ref HEAD 2> /dev/null) || return
+  echo "${ZSH_THEME_GIT_PROMPT_PREFIX}${ref#refs/heads/}$(parse_git_dirty)${ZSH_THEME_GIT_PROMPT_SUFFIX}"
+}
+
+# The ArchCraft Prompt (Tokyo Night Minimal)
+# ❯❯  directory (branch •)
+PROMPT='%F{#bb9af7}❯❯ %F{#7dcfff} %c%f$(git_prompt_info) '
+RPROMPT=''
 
 # ============================================
 # Completion System
@@ -109,58 +124,55 @@ setopt NO_BEEP              # Disable beep
 # Aliases
 # ============================================
 
-# Editor shortcuts
-alias v='nvim'
-alias vi='nvim'
-alias vim='nvim'
-alias m='micro'
-alias f='lf'
-
-# File listing
-alias ls='ls --color=auto'
-alias ll='ls -lah'
-alias la='ls -A'
-alias l='ls -CF'
-alias lt='ls -ltrh'           # Sort by time
-alias lz='ls -lSrh'           # Sort by size
+# ============================================
+# Aliases (ArchCraft Style)
+# ============================================
 
 # Navigation
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias projects='cd ~/projects'
-alias docs='cd ~/Documents'
-alias dl='cd ~/Downloads'
+alias .....='cd ../../../..'
+alias /='cd /'
 
-# Git shortcuts
-alias gs='git status'
-alias ga='git add'
-alias gaa='git add --all'
-alias gc='git commit'
-alias gcm='git commit -m'
-alias gp='git push'
-alias gpl='git pull'
-alias gd='git diff'
-alias gl='git log --oneline -10'
-alias glog='git log --graph --oneline --decorate'
-alias gb='git branch'
-alias gco='git checkout'
+# Editor
+alias v='nvim'
+alias vi='nvim'
+alias vim='nvim'
+alias nano='micro'
 
-# System
-alias top='btop'
-alias htop='htop'
-alias df='df -h'
-alias du='du -h'
-alias free='free -h'
+# List files (Preferred: eza > exa > ls)
+if command -v eza &>/dev/null; then
+    alias ls='eza --icons --group-directories-first'
+    alias ll='eza -al --icons --group-directories-first'
+    alias lt='eza -aT --icons --group-directories-first'
+elif command -v exa &>/dev/null; then
+    alias ls='exa --icons --group-directories-first'
+    alias ll='exa -al --icons --group-directories-first'
+    alias lt='exa -aT --icons --group-directories-first'
+else
+    alias ls='ls --color=auto'
+    alias ll='ls -lah --color=auto'
+    alias l='ls -CF'
+fi
 
-# Better defaults
-alias cat='bat --theme=TwoDark 2>/dev/null || cat'
+alias l.='ls -d .*'
+
+# Colorize grep output
 alias grep='grep --color=auto'
-alias diff='diff --color=auto'
-alias mkdir='mkdir -pv'
-alias rm='rm -Iv'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+# Safety
 alias cp='cp -iv'
 alias mv='mv -iv'
+alias rm='rm -iv'
+
+# System
+alias df='df -h'
+alias free='free -h'
+alias top='btop'
+
 
 # Package management
 alias update='sudo apt update && sudo apt upgrade -y'
@@ -175,84 +187,20 @@ alias ports='ss -tulanp'
 alias mem='free -h && echo && cat /proc/meminfo | head -5'
 alias cpu='lscpu | head -20'
 
-# Quick edit configs
-alias zshrc='$EDITOR ~/.zshrc'
-alias nvimrc='$EDITOR ~/.config/nvim/init.lua'
-alias alacrittyrc='$EDITOR ~/.config/alacritty/alacritty.toml'
-
-# Distrobox shortcuts
-alias db='distrobox'
-alias dbe='distrobox enter'
-alias dbl='distrobox list'
-
-# Misc
-alias c='clear'
-alias h='history'
-alias j='jobs -l'
-alias path='echo -e ${PATH//:/\\n}'
-alias now='date +"%Y-%m-%d %H:%M:%S"'
-
-# ============================================
-# Functions
-# ============================================
-
-# Create and enter directory
-mkcd() {
-    mkdir -p "$1" && cd "$1"
-}
-
-# Extract various archive formats
-extract() {
-    if [ -f "$1" ]; then
-        case "$1" in
-            *.tar.bz2)   tar xjf "$1"   ;;
-            *.tar.gz)    tar xzf "$1"   ;;
-            *.tar.xz)    tar xJf "$1"   ;;
-            *.bz2)       bunzip2 "$1"   ;;
-            *.rar)       unrar x "$1"   ;;
-            *.gz)        gunzip "$1"    ;;
-            *.tar)       tar xf "$1"    ;;
-            *.tbz2)      tar xjf "$1"   ;;
-            *.tgz)       tar xzf "$1"   ;;
-            *.zip)       unzip "$1"     ;;
-            *.Z)         uncompress "$1";;
-            *.7z)        7z x "$1"      ;;
-            *)           echo "'$1' cannot be extracted" ;;
-        esac
-    else
-        echo "'$1' is not a valid file"
-    fi
-}
-
-# Quick backup of a file
-backup() {
-    cp "$1" "$1.bak.$(date +%Y%m%d_%H%M%S)"
-}
-
-# Find file by name
-ff() {
-    find . -type f -iname "*$1*" 2>/dev/null
-}
-
-# Find directory by name
-fd() {
-    find . -type d -iname "*$1*" 2>/dev/null
-}
-
-# Get weather
-weather() {
-    curl -s "wttr.in/${1:-}?format=3"
-}
-
-# Quick note taking
-note() {
-    if [ -z "$1" ]; then
-        cat ~/Documents/notes.txt 2>/dev/null || echo "No notes found"
-    else
-        echo "$(date +"%Y-%m-%d %H:%M"): $*" >> ~/Documents/notes.txt
-        echo "Note added."
-    fi
-}
+# Git (ArchCraft Style)
+alias g='git'
+alias ga='git add'
+alias gaa='git add --all'
+alias gb='git branch'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gco='git checkout'
+alias gd='git diff'
+alias gl='git log --oneline -10'
+alias gp='git push'
+alias gpl='git pull'
+alias gs='git status'
+alias gst='git status'
 
 # ============================================
 # Load Plugins (if available)
@@ -273,9 +221,14 @@ fi
 # ============================================
 # Welcome Message
 # ============================================
+# Welcome Message
+# ============================================
 if [[ -o interactive ]]; then
-    echo ""
-    echo "  Welcome to $(hostname) | $(date +'%A, %B %d %Y')"
-    echo "  Kernel: $(uname -r) | Uptime: $(uptime -p | sed 's/up //')"
-    echo ""
+    print -P ""
+    print -P "  %F{#7aa2f7}Welcome to %F{#bb9af7}Debian%f"
+    print -P "  %F{#f7768e}  Kernel:%f $(uname -r)"
+    print -P "  %F{#7dcfff}  Uptime:%f $(uptime -p | sed 's/up //')"
+    print -P "  %F{#7dcfff}  Shell: %f Zsh $ZSH_VERSION"
+    print -P ""
 fi
+
