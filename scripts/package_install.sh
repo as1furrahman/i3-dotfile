@@ -49,7 +49,7 @@ readonly PACKAGES=(
     fonts-font-awesome papirus-icon-theme arc-theme
     # Utilities
     dex arandr imagemagick curl wget git unzip fontconfig
-    xss-lock maim xclip brightnessctl xinput
+    xss-lock maim xclip brightnessctl xinput playerctl
 
     bat ripgrep fd-find build-essential gfortran cmake
     podman distrobox
