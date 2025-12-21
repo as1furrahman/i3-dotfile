@@ -1,55 +1,50 @@
 #!/bin/bash
 
-# AI Sidebar for i3 - Persistent window version
-# Uses zenity for persistent dialog that stays open
+# AI Sidebar for i3 - Rofi-based with Tokyo Night theme
+# API key stored in ~/.config/openai_api_key
 
 KEY_FILE="$HOME/.config/openai_api_key"
+SIDEBAR_THEME="$HOME/.config/rofi/ai-sidebar.rasi"
 MODEL="gpt-4o-mini"
 MAX_TOKENS=2000
 
-# Load or prompt for API key
+# Load API key
 [[ -f "$KEY_FILE" ]] && API_KEY=$(cat "$KEY_FILE" | tr -d '\n')
 
 if [[ -z "$API_KEY" ]]; then
-    API_KEY=$(zenity --entry --title="AI Setup" --text="Enter OpenAI API Key:" --hide-text --width=400 2>/dev/null)
+    API_KEY=$(rofi -dmenu -p "󰌆 API Key" -password -theme "$SIDEBAR_THEME" -lines 0)
     [[ -z "$API_KEY" ]] && exit 0
     echo "$API_KEY" > "$KEY_FILE"
     chmod 600 "$KEY_FILE"
 fi
 
-# Main function
-ask_ai() {
-    local query="$1"
-    curl -s --max-time 60 https://api.openai.com/v1/chat/completions \
-        -H "Content-Type: application/json" \
-        -H "Authorization: Bearer $API_KEY" \
-        -d "{\"model\":\"$MODEL\",\"messages\":[{\"role\":\"user\",\"content\":$(echo "$query" | jq -Rs '.')}],\"max_tokens\":$MAX_TOKENS}" \
-        | jq -r '.choices[0].message.content // .error.message // "Error: No response"'
-}
-
 # Chat loop
 while true; do
     # Get question
-    QUERY=$(zenity --entry --title="󰧑 AI Assistant" --text="Ask anything:" --width=500 2>/dev/null)
+    QUERY=$(rofi -dmenu -p "󰧑 Ask AI" -theme "$SIDEBAR_THEME" -lines 0)
     [[ -z "$QUERY" ]] && exit 0
     
-    # Show loading (background process)
-    zenity --info --title="AI" --text="Thinking... Please wait." --width=300 --timeout=2 2>/dev/null &
-    LOADING_PID=$!
+    # Show "Thinking..." in terminal briefly
+    echo "Thinking..." | rofi -dmenu -p "󰧑" -theme "$SIDEBAR_THEME" -lines 1 &
+    THINK_PID=$!
     
-    # Get response
-    ANSWER=$(ask_ai "$QUERY")
+    # Call API
+    ANSWER=$(curl -s --max-time 60 https://api.openai.com/v1/chat/completions \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer $API_KEY" \
+        -d "{\"model\":\"$MODEL\",\"messages\":[{\"role\":\"user\",\"content\":$(echo "$QUERY" | jq -Rs '.')}],\"max_tokens\":$MAX_TOKENS}" \
+        | jq -r '.choices[0].message.content // .error.message // "Error: No response"')
     
-    # Kill loading if still running
-    kill $LOADING_PID 2>/dev/null
+    # Kill thinking prompt
+    kill $THINK_PID 2>/dev/null
+    wait $THINK_PID 2>/dev/null
     
     # Copy to clipboard
     echo "$ANSWER" | xclip -selection clipboard 2>/dev/null
     
-    # Show response in scrollable window with buttons
-    zenity --text-info --title="󰧑 AI Response (copied to clipboard)" --width=600 --height=500 \
-        --ok-label="New Question" --cancel-label="Close" --font="Cascadia Code" 2>/dev/null <<< "$ANSWER"
+    # Show full response (press Enter to ask new question, Esc to close)
+    echo -e "─────────────────────────────────────\n$ANSWER\n─────────────────────────────────────\n[Enter = New Question | Esc = Close]" \
+        | rofi -dmenu -p "󰧑 AI" -theme "$SIDEBAR_THEME" -markup-rows
     
-    # Exit if user clicked Close (exit code 1)
     [[ $? -ne 0 ]] && exit 0
 done
