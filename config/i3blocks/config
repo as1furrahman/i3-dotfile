@@ -33,7 +33,9 @@ color=#7aa2f7
 interval=10
 
 [bluetooth]
-command=$HOME/repo/i3-dotfile/scripts/bluetooth_status.sh
+command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/repo/i3-dotfile/scripts/rofi-bluetooth.sh >/dev/null 2>&1 & fi; if bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then echo "On"; else echo "Off"; fi
+label=󰂯 
+color=#7aa2f7
 interval=5
 
 
