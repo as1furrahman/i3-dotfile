@@ -40,20 +40,58 @@ trap cleanup_rofi EXIT
 
 # Chat loop
 while true; do
-    # 1. Get User Input
-    QUERY=$(rofi -dmenu -p "󰧑 Input" -theme "$SIDEBAR_THEME" -mesg "$HISTORY_TEXT" -lines 0)
+    # 1. Prepare display list from history
+    DISPLAY_LIST=""
+    while IFS= read -r line; do
+        role=$(echo "$line" | jq -r .role)
+        content=$(echo "$line" | jq -r .content)
+        
+        # Wrap content
+        wrapped=$(echo "$content" | fold -s -w 65)
+        
+        # Format each line for listview
+        if [[ "$role" == "user" ]]; then
+            # Header line
+            DISPLAY_LIST+="<span foreground='#9ece6a'><b>User:</b></span>\n"
+            # Content lines
+            while IFS= read -r wline; do
+                DISPLAY_LIST+="$wline\n"
+            done <<< "$wrapped"
+            DISPLAY_LIST+="\n"
+        else
+            DISPLAY_LIST+="<span foreground='#c0caf5'><b>AI:</b></span>\n"
+            while IFS= read -r wline; do
+                DISPLAY_LIST+="$wline\n"
+            done <<< "$wrapped"
+            DISPLAY_LIST+="\n"
+        fi
+    done < <(jq -c '.[]' "$HISTORY_FILE")
+
+    # 2. Get User Input
+    # We feed the display list to rofi
+    QUERY=$(echo -e "$DISPLAY_LIST" | rofi -dmenu -p "󰧑 Input" -theme "$SIDEBAR_THEME" \
+        -mesg "<i>Type to chat... (Up/Down to scroll history)</i>" \
+        -markup-rows)
     
     # Exit if empty
     [[ -z "$QUERY" ]] && break
     
-    # 2. Show "Thinking..." state
-    # Start rofi in background directly (no subshell) to get correct PID
-    echo "" | rofi -dmenu -p "󰧑 Thinking" -theme "$SIDEBAR_THEME" \
-        -mesg "$HISTORY_TEXT <span foreground='#7aa2f7'><i>(Thinking...)</i></span>" \
-        -lines 0 >/dev/null 2>&1 &
+    # Check if user selected a history line
+    if echo "$DISPLAY_LIST" | grep -Fqx "$QUERY"; then
+        # User selected a history line. Copy to clipboard and restart loop
+        echo "$QUERY" | sed 's/<[^>]*>//g' | xclip -selection clipboard 2>/dev/null
+        continue
+    fi
+    
+    # 3. Show "Thinking..." state
+    (
+        echo -e "$DISPLAY_LIST" | rofi -dmenu -p "󰧑 Thinking" -theme "$SIDEBAR_THEME" \
+        -mesg "<i>Thinking...</i>" \
+        -markup-rows >/dev/null 2>&1
+    ) &
     THINK_PID=$!
     
-    # 3. Process API Request
+    # 4. Process API Request
     TEMP_HIST=$(mktemp)
     jq --arg content "$QUERY" '. + [{"role": "user", "content": $content}]' "$HISTORY_FILE" > "$TEMP_HIST" && mv "$TEMP_HIST" "$HISTORY_FILE"
     
@@ -73,27 +111,7 @@ while true; do
     # Copy to clipboard
     echo "$ANSWER" | xclip -selection clipboard 2>/dev/null
     
-    # Update History Display
-    # Update History Display
-    HISTORY_TEXT=""
-    # Limit to last 10 messages to prevent too much lag
-    MESSAGES=$(tail -n 10 <(jq -c '.[]' "$HISTORY_FILE"))
-    
-    while IFS= read -r line; do
-        role=$(echo "$line" | jq -r .role)
-        content=$(echo "$line" | jq -r .content)
-        
-        # Wrap content at 65 chars (approx for 600px width)
-        wrapped=$(echo "$content" | fold -s -w 65 | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g')
-        
-        if [[ "$role" == "user" ]]; then
-            HISTORY_TEXT+="<span foreground=\"#9ece6a\"><b>User:</b></span>"$'\n'"$wrapped"$'\n\n'
-        else
-            HISTORY_TEXT+="<span foreground=\"#c0caf5\"><b>AI:</b></span>"$'\n'"$wrapped"$'\n\n'
-        fi
-    done <<< "$MESSAGES"
-
-    # Safety delay to ensure previous rofi is fully gone before restarting loop
+    # Safety delay
     sleep 0.1
 done
 
