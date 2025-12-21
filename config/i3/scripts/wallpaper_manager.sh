@@ -1,34 +1,22 @@
 #!/bin/bash
 
 # Wallpaper Manager
-# Dependencies: feh, curl
+# Dependencies: feh
+# Source: https://github.com/AmadeusWM/dotfiles-hyprland
 
-WALL_DIR="$HOME/wallpapers"
-DEFAULT_WALL="$WALL_DIR/default.png"
-# Minimalist Tokyo Night gradient/style wallpaper
-WALL_URL="https://raw.githubusercontent.com/linuxdotexe/nordic-wallpapers/master/wallpapers/ign_mountains.png" 
+WALL_DIR="$HOME/repo/i3-dotfile/wallpapers"
+CURRENT_WALL="$HOME/.current_wallpaper"
 
-# Ensure directory exists
-mkdir -p "$WALL_DIR"
-
-# Download default if not exists
-if [[ ! -f "$DEFAULT_WALL" ]] || [[ $(stat -c%s "$DEFAULT_WALL") -lt 1024 ]]; then
-    # Use the requested URL logic or a placeholder if that specific one isn't perfect, 
-    # but for now we'll use a reliable placeholder or the one from the prompt example.
-    # The prompt suggested "Tokyo Night minimal wallpaper". 
-    # I'll use a known URL for now or a placeholder.
-    # Let's use a solid color if download fails, or try to download.
+# Check if wallpaper directory exists and has files
+if [[ -d "$WALL_DIR" ]] && [[ $(ls -A "$WALL_DIR" 2>/dev/null) ]]; then
+    # Get random wallpaper
+    WALLPAPER=$(find "$WALL_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | shuf -n 1)
     
-    echo "Downloading default wallpaper..."
-    curl -L -o "$DEFAULT_WALL" "$WALL_URL" || true
-fi
-
-# Fallback: create a simple solid color image if download failed
-if [[ ! -s "$DEFAULT_WALL" ]]; then
-    convert -size 1920x1080 xc:"#1a1b26" "$DEFAULT_WALL" 2>/dev/null || true
-fi
-
-# Set wallpaper
-if [[ -f "$DEFAULT_WALL" ]]; then
-    feh --bg-fill "$DEFAULT_WALL"
+    if [[ -n "$WALLPAPER" ]]; then
+        feh --bg-fill "$WALLPAPER"
+        echo "$WALLPAPER" > "$CURRENT_WALL"
+    fi
+else
+    # Fallback: create a solid Tokyo Night color
+    convert -size 1920x1080 xc:"#1a1b26" /tmp/fallback_wall.png 2>/dev/null && feh --bg-fill /tmp/fallback_wall.png
 fi
