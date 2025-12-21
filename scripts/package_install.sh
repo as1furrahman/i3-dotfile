@@ -24,11 +24,11 @@ readonly PACKAGES=(
     # X11 and i3
     xorg xinit i3-wm i3blocks i3lock-fancy picom
     # Terminal and tools
-    alacritty zsh zsh-autosuggestions zsh-syntax-highlighting
+    zsh zsh-autosuggestions zsh-syntax-highlighting
     # File managers
     thunar lf
     # System monitors
-    btop htop
+    btop
     # Editors
     neovim micro
     # Launcher and notifications
@@ -109,6 +109,55 @@ install_packages() {
     fi
 }
 
+setup_flatpak() {
+    # Helper to setup flatpak repo
+    if ! flatpak remote-list | grep -q flathub; then
+        log "Adding Flathub repository..."
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        success "Flathub repository added"
+    else
+        log "Flathub repository already configured"
+    fi
+}
+
+install_alacritty() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Installing Alacritty Terminal${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+
+    if dpkg -l "alacritty" &> /dev/null 2>&1; then
+        success "Alacritty is already installed (native)"
+        return 0
+    fi
+
+    log "Attempting to install Alacritty via apt..."
+    if sudo apt install -y alacritty >> "$LOG_FILE" 2>&1; then
+        success "Alacritty installed via apt"
+    else
+        warn "Failed to install Alacritty via apt. Trying Flatpak fallback..."
+        
+        setup_flatpak
+        
+        log "Installing Alacritty from Flathub..."
+        if flatpak install -y flathub org.alacritty.Alacritty 2>&1 | tee -a "$LOG_FILE"; then
+            success "Alacritty installed via Flatpak"
+            
+            # Create wrapper script
+            log "Creating alacritty command wrapper..."
+            sudo bash -c 'echo "#!/bin/bash" > /usr/local/bin/alacritty && echo "flatpak run org.alacritty.Alacritty \"\$@\"" >> /usr/local/bin/alacritty && chmod +x /usr/local/bin/alacritty'
+            success "alacritty command created"
+            
+            # Ensure proper icon/desktop file if needed (optional, but good for menus)
+            # Flatpak handles desktop files generally, but the wrapper ensures 'i3-sensible-terminal' or 'alacritty' command calls work.
+        else
+            error "Failed to install Alacritty via Flatpak as well."
+            return 1
+        fi
+    fi
+}
+
+
 install_fonts() {
     echo ""
     echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
@@ -151,14 +200,7 @@ install_zen_browser() {
     echo -e "${BLUE}  Installing Zen Browser (via Flatpak)${NC}"
     echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
     
-    # Add Flathub repository if not already added
-    if ! flatpak remote-list | grep -q flathub; then
-        log "Adding Flathub repository..."
-        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-        success "Flathub repository added"
-    else
-        log "Flathub repository already configured"
-    fi
+    setup_flatpak
     
     # Install Zen Browser
     log "Installing Zen Browser from Flathub..."
@@ -178,6 +220,7 @@ install_zen_browser() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     enable_repositories
     install_packages
+    install_alacritty
     install_fonts
     install_zen_browser
 fi
