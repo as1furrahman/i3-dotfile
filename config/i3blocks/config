@@ -32,6 +32,11 @@ label=󰤨
 color=#7aa2f7
 interval=10
 
+[bluetooth]
+command=$HOME/repo/i3-dotfile/scripts/bluetooth_status.sh
+interval=5
+
+
 [battery]
 command=acpi -b | awk -F', ' '{printf "%s%s\n", $2, ($1 ~ /Charging/ ? "+" : "")}'
 label=󰁹 
