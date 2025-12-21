@@ -67,11 +67,16 @@ while true; do
         fi
     done < <(jq -c '.[]' "$HISTORY_FILE")
 
+    # Calculate line count to scroll to bottom
+    LINE_COUNT=$(echo -e "$DISPLAY_LIST" | wc -l)
+    LAST_ROW=$((LINE_COUNT - 1))
+    [[ $LAST_ROW -lt 0 ]] && LAST_ROW=0
+
     # 2. Get User Input
     # We feed the display list to rofi
     QUERY=$(echo -e "$DISPLAY_LIST" | rofi -dmenu -p "󰧑 Input" -theme "$SIDEBAR_THEME" \
         -mesg "<i>Type to chat... (Up/Down to scroll history)</i>" \
-        -markup-rows)
+        -markup-rows -selected-row $LAST_ROW)
     
     # Exit if empty
     [[ -z "$QUERY" ]] && break
@@ -87,7 +92,7 @@ while true; do
     (
         echo -e "$DISPLAY_LIST" | rofi -dmenu -p "󰧑 Thinking" -theme "$SIDEBAR_THEME" \
         -mesg "<i>Thinking...</i>" \
-        -markup-rows >/dev/null 2>&1
+        -markup-rows -selected-row $LAST_ROW >/dev/null 2>&1
     ) &
     THINK_PID=$!
     
