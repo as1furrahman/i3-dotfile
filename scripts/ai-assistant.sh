@@ -42,9 +42,11 @@ while true; do
     # Copy to clipboard
     echo "$ANSWER" | xclip -selection clipboard 2>/dev/null
     
-    # Show full response (press Enter to ask new question, Esc to close)
-    echo -e "─────────────────────────────────────\n$ANSWER\n─────────────────────────────────────\n[Enter = New Question | Esc = Close]" \
-        | rofi -dmenu -p "󰧑 AI" -theme "$SIDEBAR_THEME" -markup-rows
+    # Format response: wrap lines at 70 chars for readability
+    FORMATTED=$(echo "$ANSWER" | fold -s -w 70)
+    
+    # Show full response (each line as rofi entry)
+    echo -e "$FORMATTED" | rofi -dmenu -p "󰧑 AI (Enter=new, Esc=close)" -theme "$SIDEBAR_THEME"
     
     [[ $? -ne 0 ]] && exit 0
 done
