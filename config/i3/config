@@ -297,31 +297,25 @@ bar {
 # Compositor
 # exec --no-startup-id picom --config ~/.config/picom/picom.conf
 
-# Audio (PipeWire)
-exec --no-startup-id pipewire &
-exec --no-startup-id pipewire-pulse &
-exec --no-startup-id wireplumber &
+# Audio (PipeWire) - Let systemd handle PipeWire services
+# If audio not working, ensure pipewire-pulse is installed and services enabled:
+# systemctl --user enable pipewire pipewire-pulse wireplumber
 
 # Notifications
 exec --no-startup-id dunst
 
-# Clipboard manager
-exec --no-startup-id clipman store
+# Clipboard manager (wl-clipboard for Wayland, xclip for X11)
+exec --no-startup-id wl-paste -t text --watch clipman store 2>/dev/null || clipman store &
 
 # Network applet
 exec --no-startup-id nm-applet
 
-# Auto lock
-# Auto lock (xss-lock listens to systemd suspend system-sleep and X idle)
+# Auto lock (5 minute idle timeout)
 exec --no-startup-id xss-lock --transfer-sleep-lock -- "$HOME/.config/i3/scripts/blur-lock.sh"
-# Set idle timer to 5 minutes
 exec --no-startup-id xset s 300 300
 
 # Wallpaper
 exec_always --no-startup-id "$HOME/.config/i3/scripts/wallpaper_manager.sh"
 
-# Autostart applications
-# exec --no-startup-id dex --autostart --environment i3
-
 # Open terminal on workspace 1
-exec --no-startup-id i3-msg 'workspace $ws1; exec $term'
+exec --no-startup-id i3-msg 'workspace 1; exec alacritty'

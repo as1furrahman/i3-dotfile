@@ -1,23 +1,23 @@
 #!/bin/bash
 
-# Dependencies: maim, imagemagick, i3lock
+# Blur Lock Script for i3
+# Dependencies: i3lock, and optionally maim+imagemagick for blur effect
 
-ICON="$HOME/.config/i3/lock-icon.png"
 TMPBG="/tmp/screen_locked.png"
 
-# Take a screenshot
-maim "$TMPBG"
+# Try to create blurred background, fallback to solid color
+if command -v maim &>/dev/null && command -v convert &>/dev/null; then
+    # Take screenshot and blur
+    maim "$TMPBG" 2>/dev/null && convert "$TMPBG" -blur 0x8 "$TMPBG" 2>/dev/null
+fi
 
-# Blur the screenshot (fast blur)
-convert "$TMPBG" -blur 0x8 "$TMPBG"
-
-# Add lock icon if available (optional)
-# if [[ -f "$ICON" ]]; then
-#     convert "$TMPBG" "$ICON" -gravity center -composite -matte "$TMPBG"
-# fi
-
-# Lock the screen
-i3lock -i "$TMPBG" -n -c 000000
+# Lock screen
+if [[ -f "$TMPBG" ]]; then
+    i3lock -i "$TMPBG" -c 1a1b26
+else
+    # Fallback: solid color lock
+    i3lock -c 1a1b26
+fi
 
 # Cleanup
-rm "$TMPBG"
+rm -f "$TMPBG"
