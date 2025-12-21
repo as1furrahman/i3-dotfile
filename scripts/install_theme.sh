@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Disable interactive prompts for Git (if still used elsewhere)
+export GIT_TERMINAL_PROMPT=0
+
 # ============================================================================
 # Tokyo Night Theme Installer (GTK & Icons)
 # ============================================================================
@@ -21,8 +24,11 @@ echo -e "${BLUE}Downloading Tokyo Night GTK Theme...${NC}"
 # We use 'Tokyonight-Dark-B' if available, otherwise fallback to finding the theme.
 # Fausto-Korpsvart is the current maintainer.
 if [ ! -d "$THEME_DIR/Tokyonight-Dark-B" ] && [ ! -d "$THEME_DIR/Tokyonight-Dark" ]; then
-    # Clone depth 1 for minimalism (no history)
-    git clone --depth 1 https://github.com/Fausto-Korpsvart/Tokyonight-GTK-Theme.git /tmp/tokyonight-gtk
+    echo -e "${BLUE}Downloading Tokyo Night GTK Theme archive...${NC}"
+    curl -L https://github.com/Fausto-Korpsvart/Tokyonight-GTK-Theme/archive/refs/heads/master.zip -o /tmp/tokyonight-gtk.zip
+    unzip -q /tmp/tokyonight-gtk.zip -d /tmp/tokyonight-gtk-extract
+    # The extracted folder will be named Tokyonight-GTK-Theme-master
+    mv /tmp/tokyonight-gtk-extract/Tokyonight-GTK-Theme-master /tmp/tokyonight-gtk
     
     # Try to find the specific variant or just install all themes found in the repo
     if [ -d "/tmp/tokyonight-gtk/themes/Tokyonight-Dark-B" ]; then
@@ -46,15 +52,20 @@ if [ ! -d "$THEME_DIR/Tokyonight-Dark-B" ] && [ ! -d "$THEME_DIR/Tokyonight-Dark
              echo -e "${GREEN}Installed discovered themes${NC}"
         fi
     fi
-    rm -rf /tmp/tokyonight-gtk
+    rm -rf /tmp/tokyonight-gtk /tmp/tokyonight-gtk-extract /tmp/tokyonight-gtk.zip
 else
     echo "Tokyo Night GTK theme already installed."
 fi
 
 # Icons
 if [ ! -d "$ICON_DIR/Tokyonight-Moon" ]; then
-    echo -e "${BLUE}Downloading Tokyo Night Icons...${NC}"
-    git clone --depth 1 https://github.com/ljmill/TokyoNight-Icons.git /tmp/tokyonight-icons
+    echo -e "${BLUE}Downloading Tokyo Night Icons archive...${NC}"
+    # Corrected URL: ljmill/tokyo-night-icons (lowercase)
+    curl -L https://github.com/ljmill/tokyo-night-icons/archive/refs/heads/master.zip -o /tmp/tokyonight-icons.zip
+    unzip -q /tmp/tokyonight-icons.zip -d /tmp/tokyonight-icons-extract
+    # The extracted folder will be named tokyo-night-icons-master
+    mv /tmp/tokyonight-icons-extract/tokyo-night-icons-master /tmp/tokyonight-icons
+    
     # Move them
     if [ -d "/tmp/tokyonight-icons/TokyoNight-Moon" ]; then
         cp -r /tmp/tokyonight-icons/TokyoNight-Moon "$ICON_DIR/"
@@ -64,7 +75,7 @@ if [ ! -d "$ICON_DIR/Tokyonight-Moon" ]; then
         cp -r /tmp/tokyonight-icons/* "$ICON_DIR/" 2>/dev/null || true
         echo -e "${GREEN}Installed Icon assets${NC}"
     fi
-    rm -rf /tmp/tokyonight-icons
+    rm -rf /tmp/tokyonight-icons /tmp/tokyonight-icons-extract /tmp/tokyonight-icons.zip
 else
     echo "Tokyonight-Moon icons already installed."
 fi

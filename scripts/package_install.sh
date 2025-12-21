@@ -54,6 +54,7 @@ readonly PACKAGES=(
     # Utilities
     dex arandr imagemagick curl wget git unzip fontconfig p7zip-full unrar
     xss-lock maim xclip brightnessctl xinput playerctl pkexec lxpolkit
+    acpi cheese jq
 
     bat ripgrep fd-find eza build-essential gfortran cmake
 )
