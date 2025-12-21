@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# AI Assistant for i3 using OpenAI GPT API
-# Triggered via rofi, displays response in rofi popup
+# AI Sidebar for i3 using OpenAI GPT API
+# Appears as sidebar panel on right side of screen
 # 
 # API key is stored in ~/.config/openai_api_key
 
 # Configuration
 KEY_FILE="$HOME/.config/openai_api_key"
+SIDEBAR_THEME="$HOME/.config/rofi/ai-sidebar.rasi"
 MODEL="gpt-4o-mini"  # Fast and cheap, change to "gpt-4o" for better quality
-MAX_TOKENS=500
+MAX_TOKENS=1000
 
 # Load API key from file or environment
 if [[ -f "$KEY_FILE" ]]; then
@@ -19,7 +20,7 @@ fi
 
 # If no API key, prompt user to enter one
 if [[ -z "$API_KEY" ]]; then
-    API_KEY=$(rofi -dmenu -p "󰌆 Enter OpenAI API Key" -password -theme-str 'window {width: 50%;} listview {lines: 0;}')
+    API_KEY=$(rofi -dmenu -p "󰌆 API Key" -password -theme "$SIDEBAR_THEME")
     
     if [[ -z "$API_KEY" ]]; then
         exit 0  # User cancelled
@@ -31,22 +32,27 @@ if [[ -z "$API_KEY" ]]; then
     chmod 600 "$KEY_FILE"
 fi
 
-# Get user input via rofi
-QUERY=$(rofi -dmenu -p "󰧑 Ask AI" -theme-str 'window {width: 50%;} listview {lines: 0;}')
+# Get user input via rofi sidebar
+QUERY=$(rofi -dmenu -p "󰧑 AI" -theme "$SIDEBAR_THEME")
 
 # Exit if no input
 [[ -z "$QUERY" ]] && exit 0
 
-# Escape query for JSON
+# Call OpenAI API
 ESCAPED_QUERY=$(echo "$QUERY" | jq -Rs '.')
 
-# Call OpenAI API
 RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $API_KEY" \
     -d "{
         \"model\": \"$MODEL\",
-        \"messages\": [{\"role\": \"user\", \"content\": $ESCAPED_QUERY}],
+        \"messages\": [{
+            \"role\": \"system\",
+            \"content\": \"You are a helpful AI assistant. Be concise but thorough. Format responses with clear structure when appropriate.\"
+        },{
+            \"role\": \"user\",
+            \"content\": $ESCAPED_QUERY
+        }],
         \"max_tokens\": $MAX_TOKENS,
         \"temperature\": 0.7
     }" 2>/dev/null)
@@ -55,13 +61,12 @@ RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
 ANSWER=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // .error.message // "Error: No response"' 2>/dev/null)
 
 if [[ -z "$ANSWER" || "$ANSWER" == "null" ]]; then
-    ANSWER="Error: Failed to get response. Check your API key."
-    # Remove saved key if it failed
+    ANSWER="Error: API call failed. Your key may be invalid."
     rm -f "$KEY_FILE"
 fi
 
-# Display response in rofi (scrollable)
-echo "$ANSWER" | rofi -dmenu -p "󰧑 AI" -theme-str 'window {width: 60%;} listview {lines: 15;}'
+# Display response in sidebar (line by line for scrolling)
+echo -e "$ANSWER" | rofi -dmenu -p "󰧑 Response" -theme "$SIDEBAR_THEME"
 
-# Also copy to clipboard
+# Copy to clipboard
 echo "$ANSWER" | xclip -selection clipboard 2>/dev/null || echo "$ANSWER" | wl-copy 2>/dev/null

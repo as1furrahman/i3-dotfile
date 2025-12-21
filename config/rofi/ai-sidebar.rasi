@@ -1,0 +1,104 @@
+/**
+ * AI Sidebar Theme for Rofi
+ * Positioned on right side of screen, full height
+ */
+
+* {
+    bg-dark:     #1a1b26;
+    bg:          #24283b;
+    bg-light:    #414868;
+    fg:          #c0caf5;
+    fg-dark:     #565f89;
+    accent:      #7aa2f7;
+    green:       #9ece6a;
+    
+    background-color: transparent;
+    text-color: @fg;
+}
+
+window {
+    background-color: @bg-dark;
+    border: 2px solid;
+    border-color: @accent;
+    border-radius: 0px;
+    width: 400px;
+    height: 100%;
+    location: east;
+    anchor: east;
+    x-offset: 0;
+    y-offset: 0;
+}
+
+mainbox {
+    background-color: transparent;
+    padding: 20px;
+    spacing: 15px;
+}
+
+inputbar {
+    background-color: @bg;
+    border-radius: 8px;
+    padding: 15px;
+    spacing: 10px;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @accent;
+    font: "Cascadia Code NF Bold 14";
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg;
+    placeholder: "Ask anything...";
+    placeholder-color: @fg-dark;
+}
+
+listview {
+    background-color: transparent;
+    scrollbar: true;
+    spacing: 5px;
+    lines: 50;
+    fixed-height: true;
+}
+
+scrollbar {
+    background-color: @bg;
+    handle-color: @accent;
+    handle-width: 4px;
+    border-radius: 4px;
+}
+
+element {
+    background-color: transparent;
+    padding: 10px 15px;
+    border-radius: 6px;
+}
+
+element normal.normal {
+    background-color: transparent;
+    text-color: @fg;
+}
+
+element selected.normal {
+    background-color: @bg-light;
+    text-color: @accent;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+}
+
+message {
+    background-color: @bg;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+textbox {
+    background-color: transparent;
+    text-color: @fg;
+}
