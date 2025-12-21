@@ -13,6 +13,10 @@ if [[ -n "$TIMEZONE" ]]; then
         # Set the detected timezone
         # Note: This may require sudo/polkit authentication depending on system config
         timedatectl set-timezone "$TIMEZONE"
-        notify-send "Timezone Updated" "Switched to $TIMEZONE"
+        if command -v notify-send &> /dev/null; then
+            notify-send "Timezone Updated" "Switched to $TIMEZONE"
+        else
+            echo "Timezone Updated to $TIMEZONE"
+        fi
     fi
 fi
