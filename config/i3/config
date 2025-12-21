@@ -255,15 +255,17 @@ bindsym $mod+r mode "resize"
 
 
 # ============================================================================
-# INPUT CONFIGURATION
-# ============================================================================
+# Sway-specific configuration (NOT SUPPORTED IN i3)
+# input "type:touchpad" {
+#     dwt enabled
+#     tap enabled
+#     natural_scroll enabled
+#     middle_emulation enabled
+# }
+# To configure touchpad in i3 (X11), use 'xinput' commands in exec_always or X11 config files.
+exec_always --no-startup-id "$HOME/.config/i3/scripts/touchpad.sh"
 
-input "type:touchpad" {
-    dwt enabled
-    tap enabled
-    natural_scroll enabled
-    middle_emulation enabled
-}
+
 
 # ============================================================================
 # STATUS BAR
