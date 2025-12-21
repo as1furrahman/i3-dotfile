@@ -11,11 +11,11 @@ INTERNAL=$(xrandr | grep " connected" | grep -E "^(eDP|LVDS)" | awk '{print $1}'
 EXTERNAL=$(xrandr | grep " connected" | grep -v "$INTERNAL" | awk '{print $1}' | head -n 1)
 
 # Options
-OPT_LAPTOP="💻 Laptop Only"
-OPT_DUAL_RIGHT="🖥️ Dual (Ext Right)"
-OPT_DUAL_LEFT="🖥️ Dual (Ext Left)"
-OPT_EXTERNAL="🖥️ External Only"
-OPT_MIRROR="👥 Mirror Displays"
+OPT_LAPTOP="󰌢  Laptop"
+OPT_DUAL_RIGHT="󰍹  Dual Right"
+OPT_DUAL_LEFT="󰍹  Dual Left"
+OPT_EXTERNAL="󰍹  External Only"
+OPT_MIRROR="󰑕  Mirror"
 
 # If no external monitor found, just show info or exit
 if [[ -z "$EXTERNAL" ]]; then
@@ -29,7 +29,7 @@ fi
 # We pipe options to rofi.
 OPTIONS="$OPT_LAPTOP\n$OPT_DUAL_RIGHT\n$OPT_DUAL_LEFT\n$OPT_EXTERNAL\n$OPT_MIRROR"
 
-CHOICE=$(echo -e "$OPTIONS" | rofi -dmenu -p "󰍹 Monitor" -theme "$ROFI_THEME" -mesg "<i>Select Display Layout</i>" -lines 6)
+CHOICE=$(echo -e "$OPTIONS" | rofi -dmenu -p "󰍹 " -theme "$ROFI_THEME" -mesg "<i>Select Display Layout</i>" -lines 6)
 
 case "$CHOICE" in
     "$OPT_LAPTOP")

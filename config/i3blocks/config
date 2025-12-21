@@ -19,6 +19,13 @@ label=󰋊
 color=#e0af68
 interval=30
 
+[volume]
+command=if [ "$BLOCK_BUTTON" = 1 ]; then i3-msg exec pavucontrol; fi; wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{vol = int($2 * 100); print vol "%"}'
+label= 
+color=#7dcfff
+interval=1
+signal=10
+
 [wifi]
 command=$HOME/repo/i3-dotfile/scripts/wifi-status.sh
 label=󰤨 
@@ -30,12 +37,6 @@ command=acpi -b | awk -F', ' '{printf "%s%s\n", $2, ($1 ~ /Charging/ ? "+" : "")
 label=󰁹 
 color=#bb9af7
 interval=30
-
-[date]
-command=date '+%Y-%m-%d'
-label=󰃭 
-color=#7dcfff
-interval=60
 
 [time]
 command=date '+%H:%M'
