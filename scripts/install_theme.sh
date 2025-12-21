@@ -17,32 +17,54 @@ NC='\033[0m'
 
 echo -e "${BLUE}Downloading Tokyo Night GTK Theme...${NC}"
 
-# Using a popular Tokyo Night GTK theme fork or similar
-# Since official TokyoNight is mostly nvim/vim, we use 'Tokyonight-Dark-B' from reliable source if available.
-# Fausto-Korrea is a common maintainer for these themes.
-if [ ! -d "$THEME_DIR/Tokyonight-Dark-B" ]; then
-    git clone https://github.com/Fausto-Korrea/Tokyonight-GTK-Theme.git /tmp/tokyonight-gtk
-    cp -r /tmp/tokyonight-gtk/themes/Tokyonight-Dark-B "$THEME_DIR/"
+# Using the active and public Tokyo Night GTK theme repository
+# We use 'Tokyonight-Dark-B' if available, otherwise fallback to finding the theme.
+# Fausto-Korpsvart is the current maintainer.
+if [ ! -d "$THEME_DIR/Tokyonight-Dark-B" ] && [ ! -d "$THEME_DIR/Tokyonight-Dark" ]; then
+    # Clone depth 1 for minimalism (no history)
+    git clone --depth 1 https://github.com/Fausto-Korpsvart/Tokyonight-GTK-Theme.git /tmp/tokyonight-gtk
+    
+    # Try to find the specific variant or just install all themes found in the repo
+    if [ -d "/tmp/tokyonight-gtk/themes/Tokyonight-Dark-B" ]; then
+        cp -r /tmp/tokyonight-gtk/themes/Tokyonight-Dark-B "$THEME_DIR/"
+        echo -e "${GREEN}Installed Tokyonight-Dark-B GTK Theme${NC}"
+    elif [ -d "/tmp/tokyonight-gtk/themes" ]; then
+        # Install all variants if specific one not found
+        cp -r /tmp/tokyonight-gtk/themes/* "$THEME_DIR/"
+        echo -e "${GREEN}Installed all Tokyo Night GTK Theme variants${NC}"
+    else
+        # If the structure is flat (theme at root), look for index.theme to confirm
+        if [ -f "/tmp/tokyonight-gtk/index.theme" ]; then
+             cp -r /tmp/tokyonight-gtk "$THEME_DIR/Tokyonight-GTK-Theme"
+             echo -e "${GREEN}Installed Tokyo Night GTK Theme (Root)${NC}"
+        else
+             echo -e "${BLUE}Attempting to find theme folders...${NC}"
+             # Find folders containing index.theme and copy their parents
+             find /tmp/tokyonight-gtk -name "index.theme" -printf "%h\n" | while read -r theme_path; do
+                cp -r "$theme_path" "$THEME_DIR/"
+             done
+             echo -e "${GREEN}Installed discovered themes${NC}"
+        fi
+    fi
     rm -rf /tmp/tokyonight-gtk
-    echo -e "${GREEN}Installed Tokyonight-Dark-B GTK Theme${NC}"
 else
-    echo "Tokyonight-Dark-B already installed."
+    echo "Tokyo Night GTK theme already installed."
 fi
 
-# Icons (Tela-circle-tokyo-night or similar, or just stick to Papirus-Dark and modify folders?
-# Let's install 'Papirus-Dark' via apt (done in packages) but we can use 'papirus-folders' to color it.
-# BUT user wants "Fully Tokyo Night Themed".
-# Using 'TokyoNight' icons if available.
-# A popular one is 'TokyoNight-SE' or similar.
-# For stability, we will grab the TokyoNight icon theme from a repo.
-
+# Icons
 if [ ! -d "$ICON_DIR/Tokyonight-Moon" ]; then
     echo -e "${BLUE}Downloading Tokyo Night Icons...${NC}"
-    git clone https://github.com/ljmill/TokyoNight-Icons.git /tmp/tokyonight-icons
+    git clone --depth 1 https://github.com/ljmill/TokyoNight-Icons.git /tmp/tokyonight-icons
     # Move them
-    cp -r /tmp/tokyonight-icons/TokyoNight-Moon "$ICON_DIR/"
+    if [ -d "/tmp/tokyonight-icons/TokyoNight-Moon" ]; then
+        cp -r /tmp/tokyonight-icons/TokyoNight-Moon "$ICON_DIR/"
+        echo -e "${GREEN}Installed Tokyonight-Moon Icons${NC}"
+    else
+        # Fallback if structure is different
+        cp -r /tmp/tokyonight-icons/* "$ICON_DIR/" 2>/dev/null || true
+        echo -e "${GREEN}Installed Icon assets${NC}"
+    fi
     rm -rf /tmp/tokyonight-icons
-    echo -e "${GREEN}Installed Tokyonight-Moon Icons${NC}"
 else
     echo "Tokyonight-Moon icons already installed."
 fi
