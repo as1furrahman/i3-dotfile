@@ -19,6 +19,12 @@ label=󰋊
 color=#e0af68
 interval=30
 
+[wifi]
+command=nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2-
+label= 
+color=#7aa2f7
+interval=10
+
 [battery]
 command=acpi -b | awk -F', ' '{printf "%s%s\n", $2, ($1 ~ /Charging/ ? "+" : "")}'
 label=󰁹 
