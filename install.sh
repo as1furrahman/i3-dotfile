@@ -74,12 +74,12 @@ deploy_configs() {
         fi
     done
     
-    # Symlink shell configs
-    ln -sf "$DOTFILES_DIR/shell/.zshrc" "$HOME/.zshrc"
-    ln -sf "$DOTFILES_DIR/shell/.zsh_aliases" "$HOME/.zsh_aliases"
-    ln -sf "$DOTFILES_DIR/shell/.xinitrc" "$HOME/.xinitrc"
-    ln -sf "$DOTFILES_DIR/shell/.Xresources" "$HOME/.Xresources"
-    echo -e "${GREEN}[OK]${NC} Linked shell configs"
+    # Symlink home configs (shell + X11)
+    ln -sf "$DOTFILES_DIR/home/.zshrc" "$HOME/.zshrc"
+    ln -sf "$DOTFILES_DIR/home/.zsh_aliases" "$HOME/.zsh_aliases"
+    ln -sf "$DOTFILES_DIR/home/.xinitrc" "$HOME/.xinitrc"
+    ln -sf "$DOTFILES_DIR/home/.Xresources" "$HOME/.Xresources"
+    echo -e "${GREEN}[OK]${NC} Linked home configs"
 
     # Permissions
     chmod +x "$DOTFILES_DIR/config/i3/scripts/"*.sh 2>/dev/null || true
