@@ -38,7 +38,7 @@ elevate_cmd() {
     fi
 
     # 2. Try Rofi AskPass (Minimal UI)
-    export SUDO_ASKPASS="$HOME/repo/i3-dotfile/scripts/rofi-askpass.sh"
+    export SUDO_ASKPASS="$HOME/.config/i3/scripts/rofi-askpass.sh"
     if sudo -A bash -c "$cmd" 2>/dev/null; then
         return 0
     fi

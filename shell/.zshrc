@@ -39,13 +39,6 @@ export XDG_STATE_HOME="$HOME/.local/state"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
 
-# AI Assistant API Key (get from https://platform.openai.com/api-keys)
-# export OPENAI_API_KEY="your-api-key-here"
-
-# Wayland-specific (for GNOME Wayland)
-export MOZ_ENABLE_WAYLAND=1
-export QT_QPA_PLATFORM="wayland;xcb"
-
 # ============================================
 # Prompt Configuration (ArchCraft Theme)
 # ============================================
@@ -173,8 +166,8 @@ alias df='df -h'
 alias free='free -h'
 alias top='btop'
 
-
-# Package management
+# Load additional aliases if present
+[[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
 alias update='sudo apt update && sudo apt upgrade -y'
 alias install='sudo apt install'
 alias remove='sudo apt remove'

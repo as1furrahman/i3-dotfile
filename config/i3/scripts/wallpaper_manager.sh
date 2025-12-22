@@ -4,7 +4,7 @@
 # Dependencies: feh
 # Source: https://github.com/AmadeusWM/dotfiles-hyprland
 
-WALL_DIR="$HOME/repo/i3-dotfile/wallpapers"
+WALL_DIR="$HOME/.config/i3/wallpapers"
 CURRENT_WALL="$HOME/.current_wallpaper"
 
 # Check if wallpaper directory exists and has files

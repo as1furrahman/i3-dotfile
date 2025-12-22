@@ -5,7 +5,7 @@
 
 case $BLOCK_BUTTON in
     1) # Left click - Open Rofi WiFi Menu
-        $HOME/repo/i3-dotfile/scripts/rofi-wifi.sh >/dev/null 2>&1 &
+        $HOME/.config/i3/scripts/rofi-wifi.sh >/dev/null 2>&1 &
         ;;
     3) # Right click - Toggle WiFi (Quick action)
         nmcli radio wifi toggle >/dev/null 2>&1 &

@@ -65,7 +65,6 @@ run_backup() { bash "$SCRIPTS_DIR/backup.sh"; }
 run_packages() { bash "$SCRIPTS_DIR/package_install.sh"; }
 run_hardware() { bash "$SCRIPTS_DIR/hardware_setup.sh"; }
 run_post_install() { bash "$SCRIPTS_DIR/post_install.sh"; }
-run_post_install() { bash "$SCRIPTS_DIR/post_install.sh"; }
 
 deploy_configs() {
     header "Deploying Config Files (Symlinking)"
@@ -122,7 +121,6 @@ show_menu() {
     echo "3. Deploy Configs Only"
     echo "4. Hardware Setup Only"
     echo "5. Post-Install Setup Only"
-    echo "6. Backup Existing Configs"
     echo "6. Backup Existing Configs"
     echo "7. Install GRUB Theme"
     echo "8. Exit"

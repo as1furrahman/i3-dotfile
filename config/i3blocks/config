@@ -20,7 +20,7 @@ color=#e0af68
 interval=10
 
 [mic]
-command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/repo/i3-dotfile/scripts/mic-toggle.sh; fi; wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{if($3=="[MUTED]") {print "Muted"; exit} else {print int($2*100)"%"}}'
+command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/.config/i3/scripts/mic-toggle.sh; fi; wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{if($3=="[MUTED]") {print "Muted"; exit} else {print int($2*100)"%"}}'
 label=MIC 
 color=#bb9af7
 interval=5
@@ -34,13 +34,13 @@ interval=1
 signal=10
 
 [bluetooth]
-command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/repo/i3-dotfile/scripts/rofi-bluetooth.sh >/dev/null 2>&1 & fi; if bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then echo "On"; else echo "Off"; fi
+command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/.config/i3/scripts/rofi-bluetooth.sh >/dev/null 2>&1 & fi; if bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then echo "On"; else echo "Off"; fi
 label=BT 
 color=#7aa2f7
 interval=5
 
 [wifi]
-command=$HOME/repo/i3-dotfile/scripts/wifi-status.sh
+command=$HOME/.config/i3/scripts/wifi-status.sh
 label=NET 
 color=#7aa2f7
 interval=10

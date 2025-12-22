@@ -147,7 +147,7 @@ bindsym $mod+space focus mode_toggle
 bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+ && pkill -RTMIN+10 i3blocks
 bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- && pkill -RTMIN+10 i3blocks
 bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle && pkill -RTMIN+10 i3blocks
-bindsym XF86AudioMicMute exec --no-startup-id $HOME/repo/i3-dotfile/scripts/mic-toggle.sh
+bindsym XF86AudioMicMute exec --no-startup-id $HOME/.config/i3/scripts/mic-toggle.sh
 
 # Brightness
 bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
@@ -159,17 +159,17 @@ bindsym XF86KbdBrightnessUp exec --no-startup-id brightnessctl -d asus::kbd_back
 bindsym XF86KbdBrightnessDown exec --no-startup-id brightnessctl -d asus::kbd_backlight set 33%-
 
 # Display Switch (Zenbook)
-bindsym XF86Display exec --no-startup-id $HOME/repo/i3-dotfile/scripts/monitor-manager.sh
+bindsym XF86Display exec --no-startup-id $HOME/.config/i3/scripts/monitor-manager.sh
 
 # Touchpad Toggle
 bindsym XF86TouchpadToggle exec --no-startup-id $HOME/.config/i3/scripts/touchpad-toggle.sh
 
 # WebCam Toggle (Software Block)
-bindsym XF86WebCam exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/webcam-soft-toggle.sh
-bindsym $mod+F10 exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/webcam-soft-toggle.sh
+bindsym XF86WebCam exec --no-startup-id $HOME/.config/i3/scripts/webcam-soft-toggle.sh
+bindsym $mod+F10 exec --no-startup-id $HOME/.config/i3/scripts/webcam-soft-toggle.sh
 
 # Bluetooth
-bindsym XF86Bluetooth exec --no-startup-id $HOME/repo/i3-dotfile/scripts/rofi-bluetooth.sh
+bindsym XF86Bluetooth exec --no-startup-id $HOME/.config/i3/scripts/rofi-bluetooth.sh
 
 # WiFi Toggle
 bindsym XF86WLAN exec --no-startup-id nmcli radio wifi toggle
@@ -181,9 +181,9 @@ bindsym XF86AudioPrev exec --no-startup-id playerctl previous
 bindsym XF86AudioStop exec --no-startup-id playerctl stop
 
 # Screenshot
-bindsym Print exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/screenshot.sh select
-bindsym $mod+F11 exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/screenshot.sh select
-bindsym Shift+Print exec --no-startup-id $HOME/repo/i3-dotfile/config/i3/scripts/screenshot.sh
+bindsym Print exec --no-startup-id $HOME/.config/i3/scripts/screenshot.sh select
+bindsym $mod+F11 exec --no-startup-id $HOME/.config/i3/scripts/screenshot.sh select
+bindsym Shift+Print exec --no-startup-id $HOME/.config/i3/scripts/screenshot.sh
 
 # ============================================================================
 # KEYBINDINGS - APPLICATIONS
@@ -196,12 +196,11 @@ bindsym F10 exec --no-startup-id rofi -show window -font "Cascadia Code 13"
 bindsym $mod+Shift+d exec --no-startup-id rofi -show run -no-show-icons -font "Cascadia Code 13"
 
 # AI Assistant (GPT-powered)
-# bindsym $mod+a exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistant.sh"
-bindsym F12 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistant.sh"
-bindsym $mod+F12 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/ai-assistant.sh"
+bindsym F12 exec --no-startup-id "$HOME/.config/i3/scripts/ai-assistant.sh"
+bindsym $mod+F12 exec --no-startup-id "$HOME/.config/i3/scripts/ai-assistant.sh"
 
 # Monitor Manager
-bindsym $mod+m exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/monitor-manager.sh"
+bindsym $mod+m exec --no-startup-id "$HOME/.config/i3/scripts/monitor-manager.sh"
 
 # ============================================================================
 # FUNCTION KEYS FALLBACK (For when XF86 keys aren't detected or with Shift)
@@ -213,9 +212,9 @@ bindsym Shift+F4 exec --no-startup-id brightnessctl set 5%-
 bindsym Shift+F5 exec --no-startup-id brightnessctl set +5%
 bindsym Shift+F6 exec --no-startup-id "$HOME/.config/i3/scripts/touchpad-toggle.sh"
 bindsym Shift+F7 exec --no-startup-id brightnessctl -d asus::kbd_backlight set +33%
-bindsym Shift+F8 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/monitor-manager.sh"
-bindsym Shift+F9 exec --no-startup-id "$HOME/repo/i3-dotfile/scripts/mic-toggle.sh"
-bindsym Shift+F10 exec --no-startup-id "$HOME/repo/i3-dotfile/config/i3/scripts/webcam-soft-toggle.sh"
+bindsym Shift+F8 exec --no-startup-id "$HOME/.config/i3/scripts/monitor-manager.sh"
+bindsym Shift+F9 exec --no-startup-id "$HOME/.config/i3/scripts/mic-toggle.sh"
+bindsym Shift+F10 exec --no-startup-id "$HOME/.config/i3/scripts/webcam-soft-toggle.sh"
 
 
 # Camera (cheese)
@@ -352,19 +351,6 @@ bar {
 # AUTOSTART
 # ============================================================================
 
-# Wallpaper
-# exec_always --no-startup-id feh --bg-fill "$HOME/.config/wallpapers/tokyo-night.png"
-
-# Monitor layout
-# exec --no-startup-id "$HOME/.screenlayout/monitor.sh"
-
-# Compositor
-# exec --no-startup-id picom --config ~/.config/picom/picom.conf
-
-# Audio (PipeWire) - Let systemd handle PipeWire services
-# If audio not working, ensure pipewire-pulse is installed and services enabled:
-# systemctl --user enable pipewire pipewire-pulse wireplumber
-
 # Notifications
 exec --no-startup-id dunst
 
@@ -372,7 +358,7 @@ exec --no-startup-id dunst
 # exec --no-startup-id wl-paste -t text --watch clipman store 2>/dev/null || clipman store &
 
 # Startup applications
-exec --no-startup-id $HOME/repo/i3-dotfile/scripts/rofi-bluetooth.sh autoconnect
+exec --no-startup-id $HOME/.config/i3/scripts/rofi-bluetooth.sh autoconnect
 exec --no-startup-id dex --autostart --environment i3
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 exec --no-startup-id nm-applet
@@ -380,7 +366,7 @@ exec --no-startup-id lxpolkit
 exec --no-startup-id xset s 300 300
 
 # Automatic Timezone Setup
-exec --no-startup-id ~/repo/i3-dotfile/scripts/time-setup.sh
+exec --no-startup-id $HOME/.config/i3/scripts/time-setup.sh
 
 # Wallpaper
 exec_always --no-startup-id "$HOME/.config/i3/scripts/wallpaper_manager.sh"
