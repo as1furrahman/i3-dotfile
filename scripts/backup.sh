@@ -5,24 +5,25 @@ set -e
 # Backup Utility
 # ============================================================================
 
-# Colors
-BLUE='\033[0;34m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+# Tokyo Night Color Palette
+TN_BLUE='\033[38;5;111m'        # #7aa2f7 - Headers
+TN_GREEN='\033[38;5;115m'       # #73daca - Success
+TN_YELLOW='\033[38;5;179m'      # #e0af68 - Warnings
+DIM='\033[2m'                   # Dim text
+NC='\033[0m'                    # Reset
 
-log() { echo -e "${BLUE}[INFO]${NC} $1"; }
-success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+log() { echo -e "${DIM}  → $1${NC}"; }
+success() { echo -e "${TN_GREEN}  ✓ $1${NC}"; }
+warn() { echo -e "${TN_YELLOW}  ⚠ $1${NC}"; }
 
 BACKUP_DIR="$HOME/.config_backup_$(date +%Y%m%d_%H%M%S)"
 CONFIG_DIR="$HOME/.config"
 
 backup_configs() {
     echo ""
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  Backing Up Existing Configurations${NC}"
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  Backing Up Existing Configurations${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
     
     mkdir -p "$BACKUP_DIR"

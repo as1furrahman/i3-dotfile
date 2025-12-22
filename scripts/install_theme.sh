@@ -11,15 +11,16 @@ ICON_DIR="$HOME/.local/share/icons"
 
 mkdir -p "$THEME_DIR" "$ICON_DIR"
 
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+# Tokyo Night Color Palette
+TN_BLUE='\033[38;5;111m'        # #7aa2f7 - Headers
+TN_GREEN='\033[38;5;115m'       # #73daca - Success
+TN_YELLOW='\033[38;5;179m'      # #e0af68 - Warnings
+DIM='\033[2m'                   # Dim text
+NC='\033[0m'                    # Reset
 
-log() { echo -e "${BLUE}[INFO]${NC} $1"; }
-success() { echo -e "${GREEN}[OK]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+log() { echo -e "${DIM}  → $1${NC}"; }
+success() { echo -e "${TN_GREEN}  ✓ $1${NC}"; }
+warn() { echo -e "${TN_YELLOW}  ⚠ $1${NC}"; }
 
 # Download function: uses wget (pre-installed on Debian) or curl as fallback
 download() {

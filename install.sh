@@ -6,13 +6,14 @@ set -e
 # Optimized for Asus Zenbook S 13 OLED (UM5302TA)
 # ============================================================================
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-NC='\033[0m'
+# Tokyo Night Color Palette (minimal, OLED-friendly)
+TN_BLUE='\033[38;5;111m'        # #7aa2f7 - Headers
+TN_MAGENTA='\033[38;5;141m'     # #bb9af7 - Section titles
+TN_GREEN='\033[38;5;115m'       # #73daca - Success
+TN_YELLOW='\033[38;5;179m'      # #e0af68 - Warnings
+TN_RED='\033[38;5;204m'         # #f7768e - Errors
+DIM='\033[2m'                   # Dim text
+NC='\033[0m'                    # Reset
 
 # Paths
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,26 +23,26 @@ CONFIG_DIR="$HOME/.config"
 # Helper Functions
 header() {
     echo ""
-    echo -e "${PURPLE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${PURPLE}  $1${NC}"
-    echo -e "${PURPLE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  $1${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo ""
 }
 
 check_requirements() {
     if [[ $EUID -eq 0 ]]; then
-        echo -e "${RED}[ERROR] Do not run as root. The script will ask for sudo.${NC}"
+        echo -e "${TN_RED}  ✗ Do not run as root. The script will ask for sudo.${NC}"
         exit 1
     fi
     
     if [[ ! -f /etc/debian_version ]]; then
-        echo -e "${RED}[ERROR] This script is for Debian only.${NC}"
+        echo -e "${TN_RED}  ✗ This script is for Debian only.${NC}"
         exit 1
     fi
 
     # Internet check
     if ! ping -c 1 google.com &> /dev/null; then
-        echo -e "${RED}[ERROR] No internet connection.${NC}"
+        echo -e "${TN_RED}  ✗ No internet connection.${NC}"
         exit 1
     fi
 }
@@ -70,7 +71,7 @@ deploy_configs() {
     for cfg in "${configs[@]}"; do
         if [ -d "$DOTFILES_DIR/config/$cfg" ]; then
             ln -sfn "$DOTFILES_DIR/config/$cfg" "$CONFIG_DIR/$cfg"
-            echo -e "${GREEN}[OK]${NC} Linked $cfg"
+            echo -e "${TN_GREEN}  ✓ Linked $cfg${NC}"
         fi
     done
     
@@ -79,13 +80,13 @@ deploy_configs() {
     ln -sf "$DOTFILES_DIR/home/.zsh_aliases" "$HOME/.zsh_aliases"
     ln -sf "$DOTFILES_DIR/home/.xinitrc" "$HOME/.xinitrc"
     ln -sf "$DOTFILES_DIR/home/.Xresources" "$HOME/.Xresources"
-    echo -e "${GREEN}[OK]${NC} Linked home configs"
+    echo -e "${TN_GREEN}  ✓ Linked home configs${NC}"
 
     # Permissions
     chmod +x "$DOTFILES_DIR/config/i3/scripts/"*.sh 2>/dev/null || true
     chmod +x "$DOTFILES_DIR/config/lf/preview.sh" 2>/dev/null || true
     
-    echo -e "${GREEN}[SUCCESS] Symlinks created.${NC}"
+    echo -e "${TN_GREEN}  ✓ Symlinks created.${NC}"
 }
 
 # Menus
@@ -112,7 +113,7 @@ full_install() {
 
 show_menu() {
     clear
-    echo -e "${BLUE}Dotfiles Installer - Debian 13 (Trixie)${NC}"
+    echo -e "${TN_BLUE}Dotfiles Installer - Debian 13 (Trixie)${NC}"
     echo "1. Full Installation"
     echo "2. Install Packages Only"
     echo "3. Deploy Configs Only"

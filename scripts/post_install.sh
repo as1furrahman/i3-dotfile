@@ -5,19 +5,20 @@ set -e
 # Post-Install Setup
 # ============================================================================
 
-# Colors
-BLUE='\033[0;34m'
-GREEN='\033[0;32m'
-NC='\033[0m'
+# Tokyo Night Color Palette
+TN_BLUE='\033[38;5;111m'        # #7aa2f7 - Headers
+TN_GREEN='\033[38;5;115m'       # #73daca - Success
+DIM='\033[2m'                   # Dim text
+NC='\033[0m'                    # Reset
 
-log() { echo -e "${BLUE}[INFO]${NC} $1"; }
-success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log() { echo -e "${DIM}  → $1${NC}"; }
+success() { echo -e "${TN_GREEN}  ✓ $1${NC}"; }
 
 configure_system() {
     echo ""
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  System Configuration${NC}"
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  System Configuration${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     
     # Create directories
     log "Creating user directories..."
@@ -56,9 +57,9 @@ configure_system() {
 
 post_install_checklist() {
     echo ""
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  Post-Install Checklist${NC}"
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  Post-Install Checklist${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     echo "1. Reboot your system to apply all changes."
     echo "2. Log in and run 'startx' to launch i3."
     echo "3. Press Mod+Shift+?, check docs, or read README for help."

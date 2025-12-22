@@ -6,24 +6,25 @@ set -e
 # AMD Ryzen 7 6800U + Radeon 680M + Samsung 990 Pro
 # ============================================================================
 
-# Colors
-BLUE='\033[0;34m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+# Tokyo Night Color Palette
+TN_BLUE='\033[38;5;111m'        # #7aa2f7 - Headers
+TN_GREEN='\033[38;5;115m'       # #73daca - Success
+TN_YELLOW='\033[38;5;179m'      # #e0af68 - Warnings
+DIM='\033[2m'                   # Dim text
+NC='\033[0m'                    # Reset
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG_FILE="/tmp/dotfiles_install_$(date +%Y%m%d_%H%M%S).log"
 
-log() { echo -e "${BLUE}[INFO]${NC} $1"; }
-success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-warn() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+log() { echo -e "${DIM}  → $1${NC}"; }
+success() { echo -e "${TN_GREEN}  ✓ $1${NC}"; }
+warn() { echo -e "${TN_YELLOW}  ⚠ $1${NC}"; }
 
 install_sysctl_config() {
     echo ""
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  Installing Sysctl Performance Config${NC}"
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  Installing Sysctl Performance Config${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     
     local sysctl_src="$DOTFILES_DIR/system/performance.conf"
     local sysctl_dest="/etc/sysctl.d/99-performance.conf"
@@ -40,9 +41,9 @@ install_sysctl_config() {
 
 configure_tlp() {
     echo ""
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  Configuring TLP Power Management (AMD Ryzen 7 6800U)${NC}"
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  Configuring TLP Power Management (AMD Ryzen 7 6800U)${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     
     # Mask power-profiles-daemon to prevent conflicts
     if systemctl is-active --quiet power-profiles-daemon 2>/dev/null; then
@@ -89,9 +90,9 @@ configure_tlp() {
 
 configure_pipewire() {
     echo ""
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  Configuring Pipewire Audio${NC}"
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  Configuring Pipewire Audio${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     
     log "Checking Pipewire status..."
     if command -v pipewire &> /dev/null; then
@@ -122,9 +123,9 @@ configure_pipewire() {
 
 hardware_report() {
     echo ""
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  Hardware Status Report${NC}"
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  Hardware Status Report${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     
     local audio_server="Unknown"
     if command -v pactl &>/dev/null; then
