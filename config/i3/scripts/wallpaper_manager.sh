@@ -12,6 +12,23 @@ WALL_DIR_USER="$HOME/wallpapers"
 CURRENT_WALL="$HOME/.current_wallpaper"
 FALLBACK_COLOR="#1a1b26"  # Tokyo Night background
 
+# Known dotfiles locations (fallback if primary path doesn't exist)
+KNOWN_LOCATIONS=(
+    "$HOME/i3-dotfile/wallpapers"
+    "$HOME/.dotfiles/wallpapers"
+    "$HOME/dotfiles/wallpapers"
+)
+
+# Try known locations if primary doesn't exist
+if [[ ! -d "$WALL_DIR" ]]; then
+    for loc in "${KNOWN_LOCATIONS[@]}"; do
+        if [[ -d "$loc" ]]; then
+            WALL_DIR="$loc"
+            break
+        fi
+    done
+fi
+
 set_wallpaper() {
     local img="$1"
     if command -v feh &>/dev/null; then
