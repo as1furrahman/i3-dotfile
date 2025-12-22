@@ -211,17 +211,25 @@ if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 
-# ============================================
 # Welcome Message
-# ============================================
-# Welcome Message
-# ============================================
 if [[ -o interactive ]]; then
+    # Dynamic greeting based on time
+    local hour=$(date +%H)
+    local greeting
+    if (( hour >= 5 && hour < 12 )); then
+        greeting="Good Morning"
+    elif (( hour >= 12 && hour < 17 )); then
+        greeting="Good Afternoon"
+    elif (( hour >= 17 && hour < 21 )); then
+        greeting="Good Evening"
+    else
+        greeting="Good Night"
+    fi
+    
     print -P ""
-    print -P "  %F{#7aa2f7}Welcome to %F{#bb9af7}Debian%f"
+    print -P "  %F{#7aa2f7}$greeting, Asif%f"
+    print -P ""
     print -P "  %F{#f7768e}  Kernel:%f $(uname -r)"
     print -P "  %F{#7dcfff}  Uptime:%f $(uptime -p | sed 's/up //')"
-    print -P "  %F{#7dcfff}  Shell: %f Zsh $ZSH_VERSION"
     print -P ""
 fi
-
