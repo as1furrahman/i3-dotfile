@@ -36,7 +36,8 @@ set_wallpaper() {
 find_random_wallpaper() {
     local dir="$1"
     [[ -d "$dir" ]] || return
-    find "$dir" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) 2>/dev/null | shuf -n 1
+    # -L follows symlinks (required when wallpapers dir is symlinked)
+    find -L "$dir" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) 2>/dev/null | shuf -n 1
 }
 
 # Search all wallpaper directories
