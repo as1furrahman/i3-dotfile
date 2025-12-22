@@ -155,14 +155,40 @@ autocmd("BufReadPost", {
 })
 
 -- ============================================
--- Simple colorscheme (built-in)
+-- Plugin Manager (Lazy.nvim) & Colorscheme
 -- ============================================
 
-vim.cmd([[
-    colorscheme habamax
-    highlight Normal guibg=NONE ctermbg=NONE
-    highlight NormalFloat guibg=NONE ctermbg=NONE
-]])
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+require("lazy").setup({
+    -- Tokyo Night Theme
+    {
+        "folke/tokyonight.nvim",
+        lazy = false,
+        priority = 1000,
+        config = function()
+            require("tokyonight").setup({
+                style = "night",
+                transparent = true, -- Consistent with i3/picom
+                terminal_colors = true,
+            })
+            vim.cmd([[colorscheme tokyonight]])
+        end,
+    },
+    -- File Explorer (keeping it minimal/netrw is fine, or add nvim-tree if desired. 
+    -- User asked for minimal, so sticking to basic plugins or just the theme for now)
+})
 
 -- Status line
 vim.opt.laststatus = 2

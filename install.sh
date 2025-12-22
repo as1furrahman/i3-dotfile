@@ -46,19 +46,7 @@ check_requirements() {
     fi
 }
 
-bios_check() {
-    header "BIOS Configuration Check"
-    echo -e "${YELLOW}Ensure the following BIOS settings are configured:${NC}"
-    echo "1. VMD Controller: DISABLED (Critical for NVMe)"
-    echo "2. Secure Boot: DISABLED"
-    echo "3. Fast Boot: DISABLED"
-    echo ""
-    read -r -p "Are these settings configured? [y/N] " response
-    case "$response" in
-        [yY][eE][sS]|[yY]) ;;
-        *) echo -e "${RED}Please configure BIOS first.${NC}"; exit 1 ;;
-    esac
-}
+
 
 # Wrapper functions for modular scripts
 run_backup() { bash "$SCRIPTS_DIR/backup.sh"; }
@@ -102,7 +90,7 @@ deploy_configs() {
 # Menus
 full_install() {
     check_requirements
-    bios_check
+
     run_backup
     run_packages
     run_hardware

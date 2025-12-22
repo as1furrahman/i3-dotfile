@@ -30,17 +30,17 @@ readonly PACKAGES=(
     # System monitors
     btop htop
     # Editors
-    neovim micro
+    neovim
     # Launcher and notifications
     rofi dunst clipman
     # Applications
-    pass zathura firefox-esr evince mpv cheese
+    pass zathura firefox-esr evince mpv
     # Notifications
     libnotify-bin
     # Audio (Pipewire)
     pipewire pipewire-pulse wireplumber pavucontrol pulseaudio-utils
     # Firmware and drivers
-    firmware-linux firmware-linux-nonfree firmware-amd-graphics
+    firmware-linux firmware-linux-nonfree firmware-amd-graphics amd64-microcode
     firmware-sof-signed firmware-iwlwifi
     # System
     bluez network-manager tlp tlp-rdw powertop power-profiles-daemon
@@ -49,12 +49,13 @@ readonly PACKAGES=(
     fonts-noto-core fonts-noto-color-emoji
     fonts-liberation2 fonts-dejavu-core
     fonts-font-awesome papirus-icon-theme arc-theme
+    # Theme building dependencies
+    sassc libglib2.0-dev libxml2-utils
     # Utilities
     dex arandr imagemagick curl wget git unzip fontconfig p7zip-full unrar
     xss-lock maim xclip brightnessctl xinput playerctl pkexec lxpolkit
 
     bat ripgrep fd-find eza build-essential gfortran cmake
-    podman distrobox
 )
 
 enable_repositories() {
