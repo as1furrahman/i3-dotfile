@@ -52,6 +52,7 @@ check_requirements() {
 run_backup() { bash "$SCRIPTS_DIR/backup.sh"; }
 run_packages() { bash "$SCRIPTS_DIR/package_install.sh"; }
 run_hardware() { bash "$SCRIPTS_DIR/hardware_setup.sh"; }
+run_theme() { bash "$SCRIPTS_DIR/install_theme.sh"; }
 run_post_install() { bash "$SCRIPTS_DIR/post_install.sh"; }
 
 deploy_configs() {
@@ -94,6 +95,7 @@ full_install() {
     run_backup
     run_packages
     run_hardware
+    run_theme
     deploy_configs
     run_post_install
     
@@ -110,8 +112,9 @@ show_menu() {
     echo "4. Hardware Setup Only"
     echo "5. Post-Install Setup Only"
     echo "6. Backup Existing Configs"
-    echo "7. Install GRUB Theme"
-    echo "8. Exit"
+    echo "7. Install Theme Assets"
+    echo "8. Install GRUB Theme"
+    echo "9. Exit"
     echo ""
     read -r -p "Enter choice [1-8]: " choice
     
@@ -122,8 +125,9 @@ show_menu() {
         4) check_requirements; run_hardware ;;
         5) check_requirements; run_post_install ;;
         6) check_requirements; run_backup ;;
-        7) sudo bash "$SCRIPTS_DIR/install_grub_theme.sh" ;;
-        8) exit 0 ;;
+        7) check_requirements; run_theme ;;
+        8) sudo bash "$SCRIPTS_DIR/install_grub_theme.sh" ;;
+        9) exit 0 ;;
         *) echo "Invalid option"; sleep 1; show_menu ;;
     esac
 }
