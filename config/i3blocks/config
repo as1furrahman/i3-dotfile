@@ -56,3 +56,9 @@ command=date '+%H:%M'
 label=TIME 
 color=#c0caf5
 interval=5
+
+[ethernet]
+command=ip link show 2>/dev/null | grep -qE 'eth[0-9]+.*state UP|enp.*state UP' && echo "Connected" || echo "—"
+label=ETH 
+color=#9ece6a
+interval=10

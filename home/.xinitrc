@@ -34,6 +34,11 @@ export XCURSOR_THEME=Adwaita
 # Set cursor shape to default (fixes "loading" cursor issue)
 xsetroot -cursor_name left_ptr
 
+# Start Pipewire audio session
+pipewire &
+pipewire-pulse &
+wireplumber &
+
 # Start i3 window manager
 exec i3
 

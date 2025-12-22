@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Blur Lock Script for i3
-# Dependencies: i3lock, and optionally maim+imagemagick for blur effect
+# Dependencies: i3lock, maim, imagemagick (for blur effect)
 
 TMPBG="/tmp/screen_locked.png"
 
@@ -11,12 +11,12 @@ if command -v maim &>/dev/null && command -v convert &>/dev/null; then
     maim "$TMPBG" 2>/dev/null && convert "$TMPBG" -blur 0x8 "$TMPBG" 2>/dev/null
 fi
 
-# Lock screen
+# Lock screen (Tokyo Night background color: #1a1b26)
 if [[ -f "$TMPBG" ]]; then
-    i3lock-fancy -i "$TMPBG"
+    i3lock -i "$TMPBG" -c 1a1b26
 else
-    # Fallback: solid color lock
-    i3lock-fancy
+    # Fallback: solid Tokyo Night color lock
+    i3lock -c 1a1b26
 fi
 
 # Cleanup
