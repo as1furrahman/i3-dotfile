@@ -4,13 +4,13 @@ separator_block_width=15
 [memory]
 command=free -h | awk '/^Mem:/ {print $3 "/" $2}'
 label=MEM 
-color=#7aa2f7
+color=#7dcfff
 interval=10
 
 [cpu]
 command=grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {printf "%.0f%%", usage}'
 label=CPU 
-color=#9ece6a
+color=#bb9af7
 interval=5
 
 [temperature]
@@ -22,21 +22,21 @@ interval=10
 [mic]
 command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/.config/i3/scripts/mic-toggle.sh; fi; wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | awk '{if($3=="[MUTED]") {print "Muted"; exit} else {print int($2*100)"%"}}'
 label=MIC 
-color=#bb9af7
+color=#f7768e
 interval=5
 signal=11
 
 [volume]
 command=if [ "$BLOCK_BUTTON" = 1 ]; then i3-msg exec pavucontrol; fi; wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{vol = int($2 * 100); print vol "%"}'
 label=VOL 
-color=#7dcfff
+color=#9ece6a
 interval=1
 signal=10
 
 [bluetooth]
 command=if [ "$BLOCK_BUTTON" = 1 ]; then $HOME/.config/i3/scripts/rofi-bluetooth.sh >/dev/null 2>&1 & fi; if bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then echo "On"; else echo "Off"; fi
 label=BT 
-color=#7aa2f7
+color=#73daca
 interval=5
 
 [wifi]
@@ -58,7 +58,7 @@ color=#c0caf5
 interval=5
 
 [ethernet]
-command=ip link show 2>/dev/null | grep -qE 'eth[0-9]+.*state UP|enp.*state UP' && echo "Connected" || echo "—"
+command=ETH_IF=$(ip -o link show | grep -E 'enp|eth' | awk -F': ' '{print $2}' | head -1); if [ "$BLOCK_BUTTON" = "1" ]; then if [ -n "$ETH_IF" ]; then STATE=$(cat /sys/class/net/$ETH_IF/operstate 2>/dev/null); notify-send "Ethernet: $ETH_IF" "Status: $STATE"; else notify-send "Ethernet" "No interface found"; fi; fi; if [ -n "$ETH_IF" ] && [ "$(cat /sys/class/net/$ETH_IF/operstate 2>/dev/null)" = "up" ]; then echo "⬤"; echo ""; echo "#9ece6a"; else echo "⬤"; echo ""; echo "#f7768e"; fi
 label=ETH 
-color=#9ece6a
 interval=10
+markup=pango

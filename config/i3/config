@@ -334,7 +334,10 @@ exec_always --no-startup-id "$HOME/.config/i3/scripts/touchpad.sh"
 bar {
     status_command i3blocks
     position top
-    font pango:Cascadia Code 11
+    font pango:Cascadia Code 13
+    height 28
+    padding 2px 8px
+    tray_padding 6px
     
     colors {
         background $bg

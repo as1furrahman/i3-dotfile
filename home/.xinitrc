@@ -21,14 +21,14 @@ if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
     export DBUS_SESSION_BUS_ADDRESS
 fi
 
-# HiDPI Scaling for 2.8K OLED (1.25x - balanced for 13.3" 2880x1800)
+# HiDPI Scaling for 2.8K OLED (1.50x for better readability on 13.3" 2880x1800)
 # GDK_SCALE must be integer, so we use 1 with DPI_SCALE for fractional
 export GDK_SCALE=1
-export GDK_DPI_SCALE=1.25
+export GDK_DPI_SCALE=1.50
 export QT_AUTO_SCREEN_SCALE_FACTOR=0
-export QT_SCALE_FACTOR=1.25
-export QT_FONT_DPI=120
-export XCURSOR_SIZE=24
+export QT_SCALE_FACTOR=1.50
+export QT_FONT_DPI=144
+export XCURSOR_SIZE=32
 export XCURSOR_THEME=Adwaita
 
 # Set cursor shape to default (fixes "loading" cursor issue)
