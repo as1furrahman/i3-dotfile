@@ -81,6 +81,12 @@ deploy_configs() {
     ln -sf "$DOTFILES_DIR/home/.xinitrc" "$HOME/.xinitrc"
     ln -sf "$DOTFILES_DIR/home/.Xresources" "$HOME/.Xresources"
     echo -e "${TN_GREEN}  ✓ Linked home configs${NC}"
+    
+    # Symlink wallpapers directory for wallpaper_manager.sh
+    if [ -d "$DOTFILES_DIR/wallpapers" ]; then
+        ln -sfn "$DOTFILES_DIR/wallpapers" "$HOME/wallpapers"
+        echo -e "${TN_GREEN}  ✓ Linked wallpapers${NC}"
+    fi
 
     # Permissions
     chmod +x "$DOTFILES_DIR/config/i3/scripts/"*.sh 2>/dev/null || true

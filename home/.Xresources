@@ -2,8 +2,8 @@
 ! .Xresources - X11 Resources
 ! ============================================================================
 
-! DPI Scaling (2x for 2.8K OLED)
-Xft.dpi: 192
+! DPI Scaling (1.25x for 2.8K OLED: 96 * 1.25 = 120)
+Xft.dpi: 120
 
 ! Font defaults
 Xft.antialias: true

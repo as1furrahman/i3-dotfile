@@ -42,8 +42,8 @@ readonly PKG_X11_CORE=(xorg xinit dbus-x11 x11-xserver-utils x11-utils xdg-utils
 readonly PKG_X11_SESSION=(xdg-desktop-portal-gtk xcursor-themes xfonts-base adwaita-icon-theme)
 readonly PKG_I3=(i3-wm i3blocks i3lock picom xss-lock)
 readonly PKG_SHELL=(zsh zsh-autosuggestions zsh-syntax-highlighting)
-readonly PKG_FILE_MANAGERS=(thunar lf)
-readonly PKG_EDITORS=(neovim micro)
+readonly PKG_FILE_MANAGERS=(thunar thunar-archive-plugin thunar-media-tags-plugin gvfs gvfs-backends lf)
+readonly PKG_EDITORS=(neovim micro geany mousepad)
 readonly PKG_MONITORS=(btop)
 readonly PKG_LAUNCHER=(rofi dunst libnotify-bin)
 readonly PKG_APPS=(pass zathura evince mpv feh)
@@ -438,11 +438,11 @@ install_zen_browser() {
     setup_flatpak
     
     log "Installing Zen Browser from Flathub..."
-    if flatpak install -y flathub io.github.zen_browser.zen >> "$LOG_FILE" 2>&1; then
+    if flatpak install -y flathub app.zen_browser.zen >> "$LOG_FILE" 2>&1; then
         success "Zen Browser installed"
         
         log "Creating command alias..."
-        sudo bash -c 'echo "#!/bin/bash" > /usr/local/bin/zen-browser && echo "flatpak run io.github.zen_browser.zen \"\$@\"" >> /usr/local/bin/zen-browser && chmod +x /usr/local/bin/zen-browser'
+        sudo bash -c 'echo "#!/bin/bash" > /usr/local/bin/zen-browser && echo "flatpak run app.zen_browser.zen \"\$@\"" >> /usr/local/bin/zen-browser && chmod +x /usr/local/bin/zen-browser'
         success "zen-browser command created"
     else
         warn "Failed to install Zen Browser"

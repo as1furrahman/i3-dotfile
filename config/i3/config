@@ -235,6 +235,10 @@ bindsym $mod+Shift+p exec $term -e zsh -ic "cd ~/projects && zsh"
 # Browser (Zen Browser)
 bindsym $mod+w exec --no-startup-id zen-browser
 
+# Text Editors (GUI)
+bindsym $mod+t exec --no-startup-id geany
+bindsym $mod+Shift+t exec --no-startup-id mousepad
+
 
 
 # Config editing
@@ -358,6 +362,9 @@ exec --no-startup-id xsetroot -cursor_name left_ptr
 
 # Notifications
 exec --no-startup-id dunst
+
+# Thunar daemon (eliminates startup delay)
+exec --no-startup-id thunar --daemon
 
 # Clipboard manager (wl-clipboard for Wayland, xclip for X11)
 # exec --no-startup-id wl-paste -t text --watch clipman store 2>/dev/null || clipman store &

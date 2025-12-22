@@ -1,64 +1,52 @@
 #!/bin/bash
 
 # Wallpaper Manager
-# Dependencies: feh (preferred), xsetroot (fallback)
+# Dependencies: feh (required), xsetroot (fallback)
 
-# Get dotfiles directory (relative to this script)
-DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+# Wait for X server to be ready (prevents black screen on startup)
+sleep 0.3
 
-# Primary: dotfiles wallpapers, Fallback: user's ~/wallpapers
-WALL_DIR="$DOTFILES_DIR/wallpapers"
-WALL_DIR_USER="$HOME/wallpapers"
-CURRENT_WALL="$HOME/.current_wallpaper"
 FALLBACK_COLOR="#1a1b26"  # Tokyo Night background
+CURRENT_WALL="$HOME/.current_wallpaper"
 
-# Known dotfiles locations (fallback if primary path doesn't exist)
-KNOWN_LOCATIONS=(
-    "$HOME/i3-dotfile/wallpapers"
-    "$HOME/.dotfiles/wallpapers"
-    "$HOME/dotfiles/wallpapers"
+# Wallpaper search locations (in priority order)
+WALLPAPER_DIRS=(
+    "$HOME/wallpapers"                  # Primary: symlink from dotfiles
+    "$HOME/i3-dotfile/wallpapers"       # Direct clone location
+    "$HOME/.dotfiles/wallpapers"        # Alternative naming
+    "$HOME/dotfiles/wallpapers"         # Alternative naming
 )
 
-# Try known locations if primary doesn't exist
-if [[ ! -d "$WALL_DIR" ]]; then
-    for loc in "${KNOWN_LOCATIONS[@]}"; do
-        if [[ -d "$loc" ]]; then
-            WALL_DIR="$loc"
-            break
-        fi
-    done
-fi
+# Also check relative to this script's location (for symlinked configs)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_WALL="$(cd "$SCRIPT_DIR/../../.." 2>/dev/null && pwd)/wallpapers"
+[[ -d "$DOTFILES_WALL" ]] && WALLPAPER_DIRS+=("$DOTFILES_WALL")
 
 set_wallpaper() {
     local img="$1"
     if command -v feh &>/dev/null; then
-        feh --bg-fill "$img"
-        echo "$img" > "$CURRENT_WALL"
-    elif command -v hsetroot &>/dev/null; then
-        hsetroot -fill "$img"
-        echo "$img" > "$CURRENT_WALL"
-    else
-        # No image setter available, use solid color
-        xsetroot -solid "$FALLBACK_COLOR"
+        feh --bg-fill "$img" 2>/dev/null && echo "$img" > "$CURRENT_WALL" && return 0
     fi
+    if command -v hsetroot &>/dev/null; then
+        hsetroot -fill "$img" 2>/dev/null && echo "$img" > "$CURRENT_WALL" && return 0
+    fi
+    return 1
 }
 
-find_wallpaper() {
+find_random_wallpaper() {
     local dir="$1"
-    if [[ -d "$dir" ]]; then
-        find "$dir" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" \) 2>/dev/null | shuf -n 1
-    fi
+    [[ -d "$dir" ]] || return
+    find "$dir" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) 2>/dev/null | shuf -n 1
 }
 
-# Try dotfiles wallpapers first, then user wallpapers
-WALLPAPER=$(find_wallpaper "$WALL_DIR")
-[[ -z "$WALLPAPER" ]] && WALLPAPER=$(find_wallpaper "$WALL_DIR_USER")
+# Search all wallpaper directories
+for dir in "${WALLPAPER_DIRS[@]}"; do
+    WALLPAPER=$(find_random_wallpaper "$dir")
+    if [[ -n "$WALLPAPER" && -f "$WALLPAPER" ]]; then
+        set_wallpaper "$WALLPAPER" && exit 0
+    fi
+done
 
-if [[ -n "$WALLPAPER" && -f "$WALLPAPER" ]]; then
-    set_wallpaper "$WALLPAPER"
-    exit 0
-fi
-
-# Fallback: solid Tokyo Night color
-xsetroot -solid "$FALLBACK_COLOR"
+# Fallback: solid Tokyo Night color (OLED-friendly)
+xsetroot -solid "$FALLBACK_COLOR" 2>/dev/null
 
