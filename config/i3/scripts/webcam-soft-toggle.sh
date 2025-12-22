@@ -21,7 +21,7 @@ for dir in /sys/bus/usb/devices/*; do
 done
 
 if [ "$FOUND" -eq 0 ]; then
-    notify-send "Webcam" "Hardware not found via USB scan!" -u critical 2>/dev/null
+    $HOME/.config/i3/scripts/notify-osd.sh "" "Not found" 1007
     exit 1
 fi
 
@@ -50,15 +50,15 @@ elevate_cmd() {
 if [ "$CURRENT" == "1" ]; then
     # DISABLE (Simulate unplug)
     if elevate_cmd "echo 0 > '$AUTH_FILE'"; then
-        notify-send "Webcam" " Off"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "Off" 1007
     else
-        notify-send "Webcam" "Failed to block"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "Failed" 1007
     fi
 else
     # ENABLE (Simulate plug)
     if elevate_cmd "echo 1 > '$AUTH_FILE'"; then
-        notify-send "Webcam" " On"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "On" 1007
     else
-        notify-send "Webcam" "Failed to unblock"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "Failed" 1007
     fi
 fi

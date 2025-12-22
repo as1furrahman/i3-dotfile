@@ -24,6 +24,6 @@ fi
 # Notify (if notify-send is available)
 if command -v notify-send &> /dev/null; then
     if [[ -f "$FILENAME" ]]; then
-        notify-send "Screenshot Saved" "Saved to $FILENAME" -i "$FILENAME"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "Saved" 1009
     fi
 fi

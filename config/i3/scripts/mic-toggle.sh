@@ -28,3 +28,10 @@ fi
 
 # Refresh i3blocks
 pkill -RTMIN+11 i3blocks
+
+# Notify
+if [ "$STATUS" == "MUTED" ]; then
+    $HOME/.config/i3/scripts/notify-osd.sh "" "Muted" 1005
+else
+    $HOME/.config/i3/scripts/notify-osd.sh "" "Unmuted" 1005
+fi

@@ -19,7 +19,7 @@ OPT_MIRROR="󰑕  Mirror"
 
 # If no external monitor found, just show info or exit
 if [[ -z "$EXTERNAL" ]]; then
-    notify-send "Monitor Manager" "No external monitor detected."
+    $HOME/.config/i3/scripts/notify-osd.sh "" "No Display" 1008
     exit 0
 fi
 
@@ -34,23 +34,23 @@ CHOICE=$(echo -e "$OPTIONS" | rofi -dmenu -p "󰍹 " -theme "$ROFI_THEME" -mesg 
 case "$CHOICE" in
     "$OPT_LAPTOP")
         xrandr --output "$INTERNAL" --auto --primary --output "$EXTERNAL" --off
-        notify-send "Monitor" "Switched to Laptop Only"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "Laptop Only" 1008
         ;;
     "$OPT_DUAL_RIGHT")
         xrandr --output "$INTERNAL" --auto --primary --output "$EXTERNAL" --auto --right-of "$INTERNAL"
-        notify-send "Monitor" "Dual Display (External Right)"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "Duel Right" 1008
         ;;
     "$OPT_DUAL_LEFT")
         xrandr --output "$INTERNAL" --auto --primary --output "$EXTERNAL" --auto --left-of "$INTERNAL"
-        notify-send "Monitor" "Dual Display (External Left)"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "Duel Left" 1008
         ;;
     "$OPT_EXTERNAL")
         xrandr --output "$INTERNAL" --off --output "$EXTERNAL" --auto --primary
-        notify-send "Monitor" "Switched to External Only"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "External" 1008
         ;;
     "$OPT_MIRROR")
         xrandr --output "$INTERNAL" --auto --output "$EXTERNAL" --auto --same-as "$INTERNAL"
-        notify-send "Monitor" "Displays Mirrored"
+        $HOME/.config/i3/scripts/notify-osd.sh "" "Mirrored" 1008
         ;;
 esac
 

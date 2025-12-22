@@ -12,10 +12,10 @@ toggle_touchpad() {
             ENABLED=$(xinput list-props "$ID" 2>/dev/null | grep "Device Enabled" | awk '{print $NF}')
             if [ "$ENABLED" = "1" ]; then
                 xinput disable "$ID"
-                notify-send "Touchpad" "Disabled" 2>/dev/null
+                $HOME/.config/i3/scripts/notify-osd.sh "input-touchpad" "Touchpad Off" 1006
             else
                 xinput enable "$ID"
-                notify-send "Touchpad" "Enabled" 2>/dev/null
+                $HOME/.config/i3/scripts/notify-osd.sh "input-touchpad" "Touchpad On" 1006
             fi
             return
         fi
@@ -25,12 +25,12 @@ toggle_touchpad() {
     QUIRK_FILE="/etc/libinput/local-overrides.quirks"
     if [ -f "$QUIRK_FILE" ] && grep -q "AttrEventCodeDisable" "$QUIRK_FILE" 2>/dev/null; then
         sudo rm "$QUIRK_FILE" 2>/dev/null
-        notify-send "Touchpad" "Enabled (reboot may be needed)" 2>/dev/null
+        $HOME/.config/i3/scripts/notify-osd.sh "input-touchpad" "Touchpad On (Reboot)" 1006
     else
         echo "[ASUE140D Touchpad Disable]" | sudo tee "$QUIRK_FILE" > /dev/null
         echo "MatchName=*04F3:31B9*" | sudo tee -a "$QUIRK_FILE" > /dev/null
         echo "AttrEventCodeDisable=EV_ABS;EV_KEY" | sudo tee -a "$QUIRK_FILE" > /dev/null
-        notify-send "Touchpad" "Disabled (reboot may be needed)" 2>/dev/null
+        $HOME/.config/i3/scripts/notify-osd.sh "input-touchpad" "Touchpad Off (Reboot)" 1006
     fi
 }
 
