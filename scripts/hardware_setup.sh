@@ -2,7 +2,8 @@
 set -e
 
 # ============================================================================
-# Hardware Configuration (Asus Zenbook S 13 OLED)
+# Hardware Configuration (Asus Zenbook S 13 OLED - UM5302TA)
+# AMD Ryzen 7 6800U + Radeon 680M + Samsung 990 Pro
 # ============================================================================
 
 # Colors
@@ -11,11 +12,80 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG_FILE="/tmp/dotfiles_install_$(date +%Y%m%d_%H%M%S).log"
 
 log() { echo -e "${BLUE}[INFO]${NC} $1"; }
 success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+
+install_sysctl_config() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Installing Sysctl Performance Config${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    local sysctl_src="$DOTFILES_DIR/system/performance.conf"
+    local sysctl_dest="/etc/sysctl.d/99-performance.conf"
+    
+    if [[ -f "$sysctl_src" ]]; then
+        log "Copying performance.conf to /etc/sysctl.d/..."
+        sudo cp "$sysctl_src" "$sysctl_dest"
+        sudo sysctl -p "$sysctl_dest" >> "$LOG_FILE" 2>&1 || true
+        success "Sysctl config installed"
+    else
+        warn "performance.conf not found at $sysctl_src"
+    fi
+}
+
+configure_tlp() {
+    echo ""
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${BLUE}  Configuring TLP Power Management (AMD Ryzen 7 6800U)${NC}"
+    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    # Mask power-profiles-daemon to prevent conflicts
+    if systemctl is-active --quiet power-profiles-daemon 2>/dev/null; then
+        log "Stopping and masking power-profiles-daemon (conflicts with TLP)..."
+        sudo systemctl stop power-profiles-daemon >> "$LOG_FILE" 2>&1 || true
+        sudo systemctl mask power-profiles-daemon >> "$LOG_FILE" 2>&1 || true
+        success "power-profiles-daemon masked"
+    fi
+    
+    # Install TLP config
+    local tlp_src="$DOTFILES_DIR/system/tlp.conf"
+    local tlp_dest="/etc/tlp.d/00-zenbook.conf"
+    
+    if [[ -f "$tlp_src" ]]; then
+        log "Installing custom TLP config for Zenbook..."
+        sudo mkdir -p /etc/tlp.d
+        sudo cp "$tlp_src" "$tlp_dest"
+        success "TLP config installed to $tlp_dest"
+    else
+        warn "tlp.conf not found at $tlp_src"
+    fi
+    
+    # Enable TLP
+    if command -v tlp &> /dev/null; then
+        log "Enabling TLP service..."
+        sudo systemctl enable --now tlp >> "$LOG_FILE" 2>&1 || true
+        sudo tlp start >> "$LOG_FILE" 2>&1 || true
+        success "TLP enabled"
+    fi
+    
+    # Add amd_pstate=passive to GRUB if not present
+    local grub_file="/etc/default/grub"
+    if [[ -f "$grub_file" ]]; then
+        if ! grep -q "amd_pstate=passive" "$grub_file"; then
+            log "Adding amd_pstate=passive to GRUB for lower idle power..."
+            sudo sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="\([^"]*\)"/GRUB_CMDLINE_LINUX_DEFAULT="\1 amd_pstate=passive"/' "$grub_file"
+            sudo update-grub >> "$LOG_FILE" 2>&1 || true
+            success "GRUB updated with amd_pstate=passive (reboot required)"
+        else
+            log "amd_pstate=passive already in GRUB config"
+        fi
+    fi
+}
 
 configure_pipewire() {
     echo ""
@@ -27,7 +97,7 @@ configure_pipewire() {
     if command -v pipewire &> /dev/null; then
         # Remove PulseAudio if present
         if dpkg -l pulseaudio &> /dev/null 2>&1; then
-            log " removing PulseAudio to prevent conflicts (purging)..."
+            log "Removing PulseAudio to prevent conflicts..."
             sudo apt purge -y pulseaudio >> "$LOG_FILE" 2>&1 || true
         fi
         
@@ -50,30 +120,6 @@ configure_pipewire() {
     fi
 }
 
-configure_power() {
-    echo ""
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    echo -e "${BLUE}  Configuring Power Management${NC}"
-    echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
-    
-    # TLP
-    if command -v tlp &> /dev/null; then
-        log "Enabling TLP..."
-        sudo systemctl enable --now tlp >> "$LOG_FILE" 2>&1 || true
-        success "TLP enabled"
-    fi
-    
-    # Swappiness
-    log "Configuring swappiness..."
-    if ! grep -q "vm.swappiness=10" /etc/sysctl.conf 2>/dev/null; then
-        echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf > /dev/null
-        sudo sysctl -p >> "$LOG_FILE" 2>&1 || true
-        success "Swappiness set to 10"
-    else
-        log "Swappiness already configured"
-    fi
-}
-
 hardware_report() {
     echo ""
     echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
@@ -87,20 +133,16 @@ hardware_report() {
         audio_server=$(wpctl status | grep "PipeWire" | head -n1 | xargs || echo "PipeWire (wpctl)")
     fi
     echo "Audio Server: $audio_server"
-    echo "Power Mgmt:   $(systemctl is-active tlp)"
-    echo "Swappiness:   $(cat /proc/sys/vm/swappiness)"
+    echo "Power Mgmt:   $(systemctl is-active tlp 2>/dev/null || echo 'unknown')"
+    echo "Swappiness:   $(cat /proc/sys/vm/swappiness 2>/dev/null || echo 'unknown')"
     echo ""
-    log "Testing audio (5s white noise)..."
-    if timeout 5s speaker-test -c2 -t pink >/dev/null 2>&1; then
-        success "Audio test completed (Pink noise)"
-    else
-        warn "Audio test skipped or failed"
-    fi
 }
 
 # Main execution
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    install_sysctl_config
+    configure_tlp
     configure_pipewire
-    configure_power
     hardware_report
 fi
+

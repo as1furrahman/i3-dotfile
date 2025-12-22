@@ -25,7 +25,7 @@ setopt EXTENDED_HISTORY       # Add timestamps to history
 export EDITOR="nvim"
 export VISUAL="nvim"
 export TERMINAL="alacritty"
-export BROWSER="firefox-esr"
+export BROWSER="zen-browser"
 export PAGER="less"
 export MANPAGER="less -R --use-color -Dd+r -Du+b"
 

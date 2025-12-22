@@ -7,8 +7,8 @@
 alias thesis='cd ~/projects/thesis && nvim .'
 alias notes='cd ~/Documents/notes && nvim .'
 
-# Container workflows
-alias thesis-box='distrobox enter thesis'
+# Container workflows (create with: distrobox create -n <name> -i <image>)
+# alias thesis-box='distrobox enter thesis'
 
 # Development
 alias py='python3'
@@ -40,10 +40,10 @@ alias vol-up='pactl set-sink-volume @DEFAULT_SINK@ +5%'
 alias vol-down='pactl set-sink-volume @DEFAULT_SINK@ -5%'
 alias vol-mute='pactl set-sink-mute @DEFAULT_SINK@ toggle'
 
-# Power management
-alias powersave='powerprofilesctl set power-saver'
-alias balanced='powerprofilesctl set balanced'
-alias performance='powerprofilesctl set performance'
+# Power management (TLP)
+alias powersave='sudo tlp bat'
+alias performance='sudo tlp ac'
+alias tlp-status='sudo tlp-stat -s'
 
 # Clipboard (X11)
 alias clip='xclip -selection clipboard'
