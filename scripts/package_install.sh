@@ -23,6 +23,10 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; }
 readonly PACKAGES=(
     # X11 and i3
     xorg xinit i3-wm i3blocks i3lock-fancy picom
+    # X11 Session (CRITICAL for minimal Debian - provides dbus, cursor, utils)
+    dbus-x11 x11-xserver-utils x11-utils xdg-utils
+    xdg-desktop-portal-gtk xcursor-themes xfonts-base
+    adwaita-icon-theme
     # Terminal and tools
     zsh zsh-autosuggestions zsh-syntax-highlighting
     # File managers
@@ -220,7 +224,9 @@ install_zen_browser() {
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     enable_repositories
     install_packages
+    setup_flatpak      # Setup Flatpak BEFORE Alacritty (for fallback)
     install_alacritty
     install_fonts
     install_zen_browser
 fi
+

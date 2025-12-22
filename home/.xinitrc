@@ -2,17 +2,23 @@
 
 # ============================================================================
 # .xinitrc - X Session Initialization
+# Optimized for minimal Debian 13 + i3
 # ============================================================================
 
-# Merge X resources
-[[ -f ~/.Xresources ]] && xrdb -merge ~/.Xresources
+# Merge X resources (POSIX compatible)
+if [ -f "$HOME/.Xresources" ]; then
+    xrdb -merge "$HOME/.Xresources"
+fi
 
 # Load X keymap (if available)
-[[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap
+if [ -f "$HOME/.Xmodmap" ]; then
+    xmodmap "$HOME/.Xmodmap"
+fi
 
-# Start DBus if not already started (Debian usually handles this, but safety first)
+# Start D-Bus session (CRITICAL for minimal Debian without display manager)
 if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
     eval $(dbus-launch --sh-syntax --exit-with-session)
+    export DBUS_SESSION_BUS_ADDRESS
 fi
 
 # HiDPI Scaling for 2.8K OLED (2x)
@@ -21,12 +27,11 @@ export GDK_DPI_SCALE=0.5
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export QT_SCALE_FACTOR=2
 export XCURSOR_SIZE=32
+export XCURSOR_THEME=Adwaita
 
 # Set cursor shape to default (fixes "loading" cursor issue)
 xsetroot -cursor_name left_ptr
 
-# Start system components
-# (Most of these are better handled in i3 config exec, but xinitrc is good for env setup)
-
-# Start i3
+# Start i3 window manager
 exec i3
+
