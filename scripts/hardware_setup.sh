@@ -95,30 +95,66 @@ configure_pipewire() {
     echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
     
     log "Checking Pipewire status..."
-    if command -v pipewire &> /dev/null; then
-        # Remove PulseAudio if present
-        if dpkg -l pulseaudio &> /dev/null 2>&1; then
-            log "Removing PulseAudio to prevent conflicts..."
-            sudo apt purge -y pulseaudio >> "$LOG_FILE" 2>&1 || true
-        fi
-        
-        # Install utils
-        log "Installing audio utilities..."
-        sudo apt install -y pulseaudio-utils alsa-utils wireplumber pipewire-pulse >> "$LOG_FILE" 2>&1 || true
-
-        # Enable Pipewire services
-        log "Enabling Pipewire services..."
-        systemctl --user enable --now pipewire pipewire-pulse wireplumber 2>/dev/null || true
-        
-        # Ensure audio is unmuted and has volume
-        log "Setting default volume..."
+    if ! command -v pipewire &> /dev/null; then
+        warn "Pipewire not installed. Skipping."
+        return 1
+    fi
+    
+    # Ensure user is in audio group
+    if ! groups "$USER" | grep -q audio; then
+        log "Adding user to audio group..."
+        sudo usermod -aG audio "$USER"
+        success "User added to audio group (re-login required for full effect)"
+    fi
+    
+    # Remove PulseAudio if present (conflicts with Pipewire)
+    if dpkg -l pulseaudio 2>/dev/null | grep -q "^ii"; then
+        log "Removing PulseAudio to prevent conflicts..."
+        sudo apt purge -y pulseaudio >> "$LOG_FILE" 2>&1 || true
+    fi
+    
+    # Install critical audio packages (pipewire-alsa is essential!)
+    log "Installing audio bridge packages..."
+    sudo apt install -y pipewire-alsa libspa-0.2-bluetooth alsa-utils >> "$LOG_FILE" 2>&1 || true
+    
+    # Enable Pipewire socket activation (starts automatically with user session)
+    # This is what makes audio work with startx on minimal Debian
+    log "Enabling Pipewire socket activation..."
+    systemctl --user enable pipewire.socket pipewire-pulse.socket 2>/dev/null || true
+    systemctl --user enable wireplumber.service 2>/dev/null || true
+    
+    # Start services now
+    log "Starting Pipewire services..."
+    systemctl --user start pipewire.socket pipewire-pulse.socket 2>/dev/null || true
+    systemctl --user start wireplumber.service 2>/dev/null || true
+    
+    # Wait for wireplumber to discover devices
+    log "Waiting for audio devices..."
+    sleep 2
+    
+    # Restart wireplumber to pick up ALSA devices
+    systemctl --user restart wireplumber.service 2>/dev/null || true
+    sleep 1
+    
+    # Check if we have real audio devices (not just Dummy)
+    local SINK_COUNT
+    SINK_COUNT=$(wpctl status 2>/dev/null | grep -c "vol:" || echo "0")
+    
+    if [ "$SINK_COUNT" -gt 0 ]; then
+        # Set default volume and unmute
+        log "Setting default audio levels..."
         wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 2>/dev/null || true
         wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.6 2>/dev/null || true
         
-        success "Pipewire configured"
+        # Show detected devices
+        local DEFAULT_SINK
+        DEFAULT_SINK=$(wpctl status 2>/dev/null | grep -A5 "Sinks:" | grep "\*" | sed 's/.*\. //' | cut -d'[' -f1 | xargs)
+        success "Audio configured: $DEFAULT_SINK"
     else
-        warn "Pipewire not installed. Skipping."
+        warn "No audio sinks detected. You may need to reboot."
     fi
+    
+    success "Pipewire configured for startx autostart"
 }
 
 hardware_report() {
