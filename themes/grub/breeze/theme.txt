@@ -1,40 +1,38 @@
 # SPDX-FileCopyrightText: 2016 Harald Sitter <sitter@kde.org>
 # SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
+# Modified: Tokyo Night Theme for i3-dotfile
 
-# paperwhite - #fcfcfc
-# icongrey - #4d4d4d
-# plasmablue - #3daee9
-# black - #000000
+# Tokyo Night Color Palette
+# bg         - #1a1b26
+# bg_dark    - #16161e
+# fg         - #c0caf5
+# fg_dark    - #a9b1d6
+# accent     - #7aa2f7
+# comment    - #565f89
 
 # Global Property
-# General settings
 title-text: ""
 title-font: "Unifont Regular 14"
 message-font: "Unifont Regular 14"
-message-color: "#7f8c8d"
-message-bg-color: "#4d4d4d" # TODO: whatever is this for?
-desktop-color: "#000000" # black
+message-color: "#565f89"
+message-bg-color: "#1a1b26"
+desktop-color: "#1a1b26"
 
-# title
-# NOTE: can't put this in a vbox because GRUB is crap and item highlighting
-#   is broken if you put the boot_menu in a vbox...
-# TODO: file bug report
+# Title Label
 + label {
-    top = 50%-225 # (150+43+32) menu + height + spacer
+    top = 50%-225
     left = 0%
     width = 100%
     text = "Select Operating System"
     align = "center"
     font = "Unifont Regular 32"
-    color = "#ffffff"
+    color = "#c0caf5"
 }
 
-# Show the boot menu
+# Boot Menu
 + boot_menu {
     left = 50%-200
     width = 400
-    # NB: this is scooped upwards from the middle.
-    #     effectively 50px are below and the remaining 150 above
     top = 50%-150
     height = 200
     # Icon
@@ -45,23 +43,24 @@ desktop-color: "#000000" # black
     item_padding = 1
     item_icon_space = 0
     item_spacing = 1
-    item_font =  "Unifont Regular 16"
-    item_color = "#7f8c8d"
+    item_font = "Unifont Regular 16"
+    item_color = "#a9b1d6"
     selected_item_font = "Unifont Bold 16"
-    selected_item_color = "#ffffff"
+    selected_item_color = "#7aa2f7"
 }
 
+# Help Text
 + vbox {
-    left = 50%-200 # same as menu
-    top = 50%+113 # (50+16+19+28) half menu + spacer + progress + spacer
-    width = 400 # same as menu
-    + label { width = 400 align = "center" color = "#7f8c8d" font = "Unifont Regular 14" text = "[Enter] Boot the selected OS" }
-    + label { width = 400 align = "center" color = "#7f8c8d" font = "Unifont Regular 14" text = "[Up and Down Key] navigation" }
-    + label { width = 400 align = "center" color = "#7f8c8d" font = "Unifont Regular 14" text = "[E] Edit Selection" }
-    + label { width = 400 align = "center" color = "#7f8c8d" font = "Unifont Regular 14" text = "[C] GRUB Command Line" }
+    left = 50%-200
+    top = 50%+113
+    width = 400
+    + label { width = 400 align = "center" color = "#565f89" font = "Unifont Regular 14" text = "[Enter] Boot the selected OS" }
+    + label { width = 400 align = "center" color = "#565f89" font = "Unifont Regular 14" text = "[Up and Down Key] navigation" }
+    + label { width = 400 align = "center" color = "#565f89" font = "Unifont Regular 14" text = "[E] Edit Selection" }
+    + label { width = 400 align = "center" color = "#565f89" font = "Unifont Regular 14" text = "[C] GRUB Command Line" }
 }
 
-# Show a styled horizontal progress bar
+# Progress Bar (bottom)
 + progress_bar {
     id = "__timeout__"
     left = 0
@@ -73,17 +72,18 @@ desktop-color: "#000000" # black
     highlight_style = "progress_bar_hl_*.png"
 }
 
-# Show text progress bar
+# Progress Bar (center text)
 + progress_bar {
     id = "__timeout__"
-    left = 50%-200 # same as menu
-    top = 50%+66 # (50+16) half menu + spacer
-    width = 400 # same as menu
-    height = 19 # 14pt
+    left = 50%-200
+    top = 50%+66
+    width = 400
+    height = 19
     show_text = true
     font = "Unifont Regular 14"
-    text_color = "#7f8c8d"
+    text_color = "#565f89"
     align = "center"
     text = "@TIMEOUT_NOTIFICATION_MIDDLE@"
     bar_style = "progress_bar2_*.png"
 }
+

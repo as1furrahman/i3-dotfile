@@ -362,44 +362,20 @@ install_packages() {
     fi
 }
 
-setup_flatpak() {
-    section_header "Setting up Flatpak"
-    if ! flatpak remote-list 2>/dev/null | grep -q flathub; then
-        log "Adding Flathub repository..."
-        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-        success "Flathub repository added"
-    else
-        log "Flathub repository already configured"
-    fi
-}
-
 install_alacritty() {
     section_header "Alacritty Terminal"
 
     if dpkg -l "alacritty" 2>/dev/null | grep -q "^ii"; then
-        success "Alacritty is already installed (native)"
+        success "Alacritty is already installed"
         return 0
     fi
 
-    log "Attempting to install via apt..."
+    log "Installing Alacritty via apt..."
     if sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq alacritty >> "$LOG_FILE" 2>&1; then
-        success "Alacritty installed via apt"
+        success "Alacritty installed"
     else
-        warn "apt failed, trying Flatpak fallback..."
-        
-        setup_flatpak
-        
-        log "Installing Alacritty from Flathub..."
-        if flatpak install -y flathub org.alacritty.Alacritty >> "$LOG_FILE" 2>&1; then
-            success "Alacritty installed via Flatpak"
-            
-            log "Creating command wrapper..."
-            sudo bash -c 'echo "#!/bin/bash" > /usr/local/bin/alacritty && echo "flatpak run org.alacritty.Alacritty \"\$@\"" >> /usr/local/bin/alacritty && chmod +x /usr/local/bin/alacritty'
-            success "alacritty command created"
-        else
-            error "Failed to install Alacritty via Flatpak as well."
-            return 1
-        fi
+        error "Failed to install Alacritty. Please install manually."
+        return 1
     fi
 }
 
@@ -433,24 +409,97 @@ install_fonts() {
 }
 
 install_zen_browser() {
-    section_header "Zen Browser (Flatpak)"
+    section_header "Zen Browser (Official AppImage)"
     
-    setup_flatpak
+    # Check if already installed
+    if command -v zen-browser &>/dev/null; then
+        success "Zen Browser is already installed"
+        zen-browser --version 2>/dev/null || true
+        return 0
+    fi
     
-    log "Installing Zen Browser from Flathub..."
-    if flatpak install -y flathub app.zen_browser.zen >> "$LOG_FILE" 2>&1; then
-        success "Zen Browser installed"
+    # Check for zsync (required for updates)
+    if ! command -v zsync &>/dev/null; then
+        log "Installing zsync (required for Zen Browser updates)..."
+        sudo apt-get install -y zsync >> "$LOG_FILE" 2>&1 || warn "zsync not installed (updates may not work)"
+    fi
+    
+    log "Installing Zen Browser using official AppImage script..."
+    log "Source: https://github.com/zen-browser/desktop"
+    echo ""
+    
+    # Run official installation script
+    # This script handles: download, AppImage setup, desktop integration, and PATH setup
+    if bash <(curl -s https://updates.zen-browser.app/appimage.sh); then
+        success "Zen Browser installed successfully!"
+        echo ""
+        log "The official installer has set up:"
+        log "  • AppImage in ~/.local/share/appimages/"
+        log "  • Desktop entry for application menu"
+        log "  • Automatic updates via zsync"
+        echo ""
         
-        log "Creating command alias..."
-        sudo bash -c 'echo "#!/bin/bash" > /usr/local/bin/zen-browser && echo "flatpak run app.zen_browser.zen \"\$@\"" >> /usr/local/bin/zen-browser && chmod +x /usr/local/bin/zen-browser'
-        success "zen-browser command created"
+        # Verify installation
+        if command -v zen-browser &>/dev/null; then
+            success "zen-browser command is available"
+        else
+            # Create symlink if not in PATH
+            local ZEN_APPIMAGE
+            ZEN_APPIMAGE=$(find "$HOME/.local" -name "zen*.AppImage" -type f 2>/dev/null | head -1)
+            if [[ -n "$ZEN_APPIMAGE" && -f "$ZEN_APPIMAGE" ]]; then
+                mkdir -p "$HOME/.local/bin"
+                ln -sf "$ZEN_APPIMAGE" "$HOME/.local/bin/zen-browser"
+                chmod +x "$HOME/.local/bin/zen-browser"
+                success "Created zen-browser symlink in ~/.local/bin/"
+                log "Make sure ~/.local/bin is in your PATH"
+            fi
+        fi
     else
-        warn "Failed to install Zen Browser"
+        error "Official installer failed. Trying manual installation..."
+        
+        # Fallback: Manual tarball installation
+        local ZEN_DIR="$HOME/.local/share/zen-browser"
+        local ZEN_BIN="$HOME/.local/bin/zen-browser"
+        
+        mkdir -p "$ZEN_DIR" "$HOME/.local/bin"
+        
+        log "Downloading from GitHub releases..."
+        local ZEN_URL="https://github.com/zen-browser/desktop/releases/latest/download/zen.linux-x86_64.tar.xz"
+        local ZEN_ARCHIVE="/tmp/zen-browser.tar.xz"
+        
+        if curl -fsSL -o "$ZEN_ARCHIVE" "$ZEN_URL"; then
+            log "Extracting..."
+            tar -xJf "$ZEN_ARCHIVE" -C "$ZEN_DIR" --strip-components=1 2>/dev/null || \
+            tar -xJf "$ZEN_ARCHIVE" -C "$ZEN_DIR" 2>/dev/null
+            rm -f "$ZEN_ARCHIVE"
+            
+            # Find and link executable
+            local ZEN_EXEC="$ZEN_DIR/zen"
+            [[ ! -f "$ZEN_EXEC" ]] && ZEN_EXEC=$(find "$ZEN_DIR" -maxdepth 2 -name "zen*" -type f -executable | head -1)
+            
+            if [[ -f "$ZEN_EXEC" ]]; then
+                chmod +x "$ZEN_EXEC"
+                ln -sf "$ZEN_EXEC" "$ZEN_BIN"
+                success "Zen Browser installed (manual fallback)"
+            else
+                error "Installation failed"
+                return 1
+            fi
+        else
+            error "Download failed"
+            return 1
+        fi
     fi
 }
 
 # Main execution
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # Support calling specific functions via command line
+    if [[ "$1" == "install_zen_browser" ]]; then
+        install_zen_browser
+        exit $?
+    fi
+    
     main_header "Dotfiles Package Installer"
     echo -e "${DIM}  Log file: $LOG_FILE${NC}"
     echo ""
@@ -460,11 +509,12 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     install_alacritty
     install_fonts
     
-    # Optional: Zen Browser (Flatpak) - uncomment if needed
-    # install_zen_browser
-    
     echo ""
     main_header "Installation Complete"
     success "All package installation steps finished!"
     echo ""
+    echo -e "${DIM}  Note: Run './install.sh' and select option 9 to install Zen Browser${NC}"
+    echo ""
 fi
+
+

@@ -59,6 +59,11 @@ run_post_install() { bash "$SCRIPTS_DIR/post_install.sh"; }
 deploy_configs() {
     header "Deploying Config Files (Symlinking)"
     
+    # Set script permissions early
+    echo -e "${DIM}  → Setting script permissions...${NC}"
+    find "$DOTFILES_DIR/config/i3/scripts" -name "*.sh" -exec chmod +x {} \; 2>/dev/null || true
+    chmod +x "$DOTFILES_DIR/config/lf/preview.sh" 2>/dev/null || true
+    
     # Ensure config directory exists
     mkdir -p "$CONFIG_DIR"
     
@@ -75,22 +80,19 @@ deploy_configs() {
         fi
     done
     
-    # Symlink home configs (shell + X11)
+    # Symlink home configs (shell + X11 + GTK2)
     ln -sf "$DOTFILES_DIR/home/.zshrc" "$HOME/.zshrc"
     ln -sf "$DOTFILES_DIR/home/.zsh_aliases" "$HOME/.zsh_aliases"
     ln -sf "$DOTFILES_DIR/home/.xinitrc" "$HOME/.xinitrc"
     ln -sf "$DOTFILES_DIR/home/.Xresources" "$HOME/.Xresources"
-    echo -e "${TN_GREEN}  ✓ Linked home configs${NC}"
+    ln -sf "$DOTFILES_DIR/home/.gtkrc-2.0" "$HOME/.gtkrc-2.0"
+    echo -e "${TN_GREEN}  ✓ Linked home configs (incl. GTK-2.0)${NC}"
     
     # Symlink wallpapers directory for wallpaper_manager.sh
     if [ -d "$DOTFILES_DIR/wallpapers" ]; then
         ln -sfn "$DOTFILES_DIR/wallpapers" "$HOME/wallpapers"
         echo -e "${TN_GREEN}  ✓ Linked wallpapers${NC}"
     fi
-
-    # Permissions
-    chmod +x "$DOTFILES_DIR/config/i3/scripts/"*.sh 2>/dev/null || true
-    chmod +x "$DOTFILES_DIR/config/lf/preview.sh" 2>/dev/null || true
     
     echo -e "${TN_GREEN}  ✓ Symlinks created.${NC}"
 }
@@ -128,9 +130,10 @@ show_menu() {
     echo "6. Backup Existing Configs"
     echo "7. Install Theme Assets"
     echo "8. Install GRUB Theme"
-    echo "9. Exit"
+    echo "9. Install Zen Browser (Native)"
+    echo "10. Exit"
     echo ""
-    read -r -p "Enter choice [1-9]: " choice
+    read -r -p "Enter choice [1-10]: " choice
     
     case $choice in
         1) full_install ;;
@@ -141,7 +144,8 @@ show_menu() {
         6) check_requirements; run_backup ;;
         7) check_requirements; run_theme ;;
         8) sudo bash "$SCRIPTS_DIR/install_grub_theme.sh" ;;
-        9) exit 0 ;;
+        9) check_requirements; bash "$SCRIPTS_DIR/package_install.sh" install_zen_browser ;;
+        10) exit 0 ;;
         *) echo "Invalid option"; sleep 1; show_menu ;;
     esac
 }

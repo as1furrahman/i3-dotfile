@@ -1,5 +1,6 @@
 # lf file manager configuration
 # https://github.com/gokcehan/lf
+# Tokyo Night Theme
 
 # Basic settings
 set hidden true
@@ -23,8 +24,9 @@ set previewer ~/.config/lf/preview.sh
 # Ratios
 set ratios 1:2:3
 
-# Colors
-set cursorpreviewfmt "\033[7;2m"
+# Tokyo Night Colors
+# Cursor format: blue highlight (#7aa2f7 = 111 in 256-color)
+set cursorpreviewfmt "\033[38;5;111m"
 
 # Leave some space at the top and bottom
 set scrolloff 10

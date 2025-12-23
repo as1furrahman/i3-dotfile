@@ -36,20 +36,36 @@ Optimized for **Debian 13 (Trixie)** with specific tweaks for the **Asus Zenbook
 
 3. **Reboot**: Enjoy your new system.
 
-## ⌨️ keybindings
+## ⌨️ Keybindings
 
 | Keybinding | Action |
 |------------|--------|
 | `Mod+Return` | Open Terminal (Alacritty) |
 | `Mod+Shift+Return` | Open Floating Terminal |
 | `Mod+d` | App Launcher (Rofi) |
-| `Mod+w` | Browser (Firefox) |
+| `Mod+w` | Browser (Zen Browser) |
 | `Mod+n` | File Manager (lf in terminal) |
 | `Mod+Shift+f` | File Manager (Thunar) |
 | `Mod+Shift+q` | Close Window |
 | `Mod+Shift+e` | Power Menu |
 | `Mod+Shift+r` | Restart i3 |
-| `F12` | AI Assistant |
+| `Mod+F12` | AI Assistant |
+
+## 🌐 Zen Browser Installation
+
+Zen Browser is the default browser for this setup. Install using the official AppImage script:
+
+```bash
+# Option 1: Via installer menu
+./install.sh
+# Select option 9: Install Zen Browser (Native)
+
+# Option 2: Direct installation (official script)
+bash <(curl -s https://updates.zen-browser.app/appimage.sh)
+```
+
+> **Source**: [github.com/zen-browser/desktop](https://github.com/zen-browser/desktop)  
+> **Note**: The `Mod+w` keybinding expects `zen-browser` command to be available in PATH.
 
 ## 🛠️ Customization
 
