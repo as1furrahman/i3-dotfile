@@ -39,6 +39,39 @@ install_sysctl_config() {
     fi
 }
 
+install_udev_rules() {
+    echo ""
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    echo -e "${TN_BLUE}  Installing System Rules (Udev + NetworkManager)${NC}"
+    echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
+    
+    # LED permissions (mic mute + camera)
+    local udev_src="$DOTFILES_DIR/system/mic-led.rules"
+    local udev_dest="/etc/udev/rules.d/99-mic-led.rules"
+    
+    if [[ -f "$udev_src" ]]; then
+        log "Installing LED permission rules..."
+        sudo cp "$udev_src" "$udev_dest"
+        sudo udevadm control --reload-rules 2>/dev/null || true
+        sudo udevadm trigger 2>/dev/null || true
+        success "LED rules installed (mic + camera)"
+    else
+        warn "mic-led.rules not found at $udev_src"
+    fi
+    
+    # NetworkManager WiFi management fix
+    local nm_src="$DOTFILES_DIR/system/manage-wifi.conf"
+    local nm_dest="/etc/NetworkManager/conf.d/99-manage-wifi.conf"
+    
+    if [[ -f "$nm_src" ]]; then
+        log "Installing NetworkManager WiFi config..."
+        sudo mkdir -p /etc/NetworkManager/conf.d
+        sudo cp "$nm_src" "$nm_dest"
+        success "NetworkManager config installed (WiFi managed)"
+        log "Restart NetworkManager to apply: sudo systemctl restart NetworkManager"
+    fi
+}
+
 configure_tlp() {
     echo ""
     echo -e "${TN_BLUE}════════════════════════════════════════════════════════════════${NC}"
@@ -178,6 +211,7 @@ hardware_report() {
 # Main execution
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     install_sysctl_config
+    install_udev_rules
     configure_tlp
     configure_pipewire
     hardware_report

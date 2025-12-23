@@ -1,7 +1,7 @@
 #!/bin/bash
 # WiFi Status Script for i3blocks
 # Handles all edge cases: no device, radio off, disconnected, connected
-# Left click opens nmtui for network management
+# Left click opens Rofi WiFi Menu
 
 case $BLOCK_BUTTON in
     1) # Left click - Open Rofi WiFi Menu
@@ -12,17 +12,18 @@ case $BLOCK_BUTTON in
         ;;
 esac
 
-# Get WiFi interface
-WIFI_IF=$(iw dev 2>/dev/null | awk '$1=="Interface"{print $2; exit}')
-
-if [ -z "$WIFI_IF" ]; then
-    echo "No WiFi"
+# Check WiFi radio status first
+RADIO=$(nmcli radio wifi 2>/dev/null)
+if [ "$RADIO" = "disabled" ]; then
+    echo "Off"
     exit 0
 fi
 
-# Check WiFi radio status
-if [ "$(nmcli radio wifi)" = "disabled" ]; then
-    echo "WiFi Off"
+# Get WiFi device status using nmcli (no iw dependency)
+WIFI_DEV=$(nmcli -t -f DEVICE,TYPE device | grep ":wifi$" | cut -d: -f1 | head -1)
+
+if [ -z "$WIFI_DEV" ]; then
+    echo "No WiFi"
     exit 0
 fi
 
@@ -35,3 +36,4 @@ if [ -n "$WIFI_INFO" ]; then
 else
     echo "Disconnected"
 fi
+

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Webcam Instant Toggle - Uses USB 'authorized' attribute
 # Simulates physical unplug/replug for instant effect
-# VID:PID = 13d3:5463
+# VID:PID = 13d3:5463 (IMC Networks USB2.0 HD UVC WebCam)
 
 VID="13d3"
 PID="5463"
@@ -28,6 +28,12 @@ fi
 AUTH_FILE="$DEVICE_DIR/authorized"
 CURRENT=$(cat "$AUTH_FILE")
 
+# Camera LED path
+CAMERA_LED=""
+if [ -d "/sys/class/leds/asus::camera" ]; then
+    CAMERA_LED="asus::camera"
+fi
+
 # Helper to exec privileged command: try sudo -n first, then sudo -A (rofi), then pkexec
 elevate_cmd() {
     local cmd="$1"
@@ -47,9 +53,18 @@ elevate_cmd() {
     pkexec bash -c "$cmd"
 }
 
+# Set camera LED state (0 = off/disabled, 1 = on/enabled)
+set_camera_led() {
+    local state="$1"
+    if [ -n "$CAMERA_LED" ]; then
+        brightnessctl -d "$CAMERA_LED" set "$state" 2>/dev/null || true
+    fi
+}
+
 if [ "$CURRENT" == "1" ]; then
     # DISABLE (Simulate unplug)
     if elevate_cmd "echo 0 > '$AUTH_FILE'"; then
+        set_camera_led 0  # LED off = camera disabled
         $HOME/.config/i3/scripts/notify-osd.sh "" "Off" 1007
     else
         $HOME/.config/i3/scripts/notify-osd.sh "" "Failed" 1007
@@ -57,8 +72,10 @@ if [ "$CURRENT" == "1" ]; then
 else
     # ENABLE (Simulate plug)
     if elevate_cmd "echo 1 > '$AUTH_FILE'"; then
+        set_camera_led 1  # LED on = camera enabled
         $HOME/.config/i3/scripts/notify-osd.sh "" "On" 1007
     else
         $HOME/.config/i3/scripts/notify-osd.sh "" "Failed" 1007
     fi
 fi
+

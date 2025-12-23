@@ -1,129 +1,162 @@
 #!/bin/bash
-# WiFi Menu for i3 (Rofi-based)
-# Dependencies: nmcli, rofi, notify-send, awk
+# Rofi WiFi - Minimal & Universal
+# Theme: Tokyo Night (matches rofi-bluetooth.sh style)
+# 
+# Usage:
+#   rofi-wifi.sh              - Open menu
+#   rofi-wifi.sh autoconnect  - Auto-connect to known networks (for startup)
 
-THEME="$HOME/.config/rofi/tokyonight.rasi"
-export LC_ALL=C
+DIVIDER="───"
 
-notify() { notify-send "WiFi" "$1"; }
+# Notification helper
+notify() {
+    $HOME/.config/i3/scripts/notify-osd.sh "network-wireless" "$1" 1008
+}
 
-# 1. Check Status
-STATE=$(nmcli -fields WIFI g)
-# Check specific device state for unavailable
-DEV_STATE=$(nmcli -t -f TYPE,STATE dev | grep "wifi" | cut -d: -f2 | head -n1)
+# Check if WiFi is enabled
+wifi_on() { [[ "$(nmcli radio wifi)" == "enabled" ]]; }
 
-# Check rfkill to differentiate HW block vs SW error
-RFKILL=$(rfkill list wifi | grep "Soft blocked: yes")
+# Get current connection
+get_current() { nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^yes' | cut -d: -f2; }
 
-CURRENT=$(nmcli -t -f active,ssid dev wifi | grep '^yes' | cut -d: -f2)
+# Auto-connect to known networks (for startup)
+autoconnect() {
+    sleep 3
+    nmcli radio wifi on 2>/dev/null
+    exit 0
+}
 
-if [[ "$STATE" =~ "disabled" ]] || [[ "$STATE" =~ "off" ]]; then
-    TOGGLE="直 Enable WiFi"
-    STATUS="Disabled"
-elif [[ "$DEV_STATE" == "unavailable" ]]; then
-    if [[ -n "$RFKILL" ]]; then
-        TOGGLE="直 Enable WiFi (Force)"
-        STATUS="RFKill Blocked"
-    else
-        TOGGLE="直 Reset Networking"
-        STATUS="Interface Down/Error"
-    fi
-else
-    TOGGLE="睊 Disable WiFi"
-    STATUS="Enabled"
-    [[ -n "$CURRENT" ]] && STATUS="Connected: $CURRENT"
-fi
+[ "$1" = "autoconnect" ] && autoconnect
 
-# 2. Build Menu Options
-OPTIONS="$TOGGLE\n Rescan"
-
-if [[ "$STATUS" != "Disabled" && "$STATUS" != "RFKill Blocked" && "$STATUS" != "Interface Down/Error" ]]; then
-    # List Networks
-    LIST=$(nmcli --fields SSID,BARS,SECURITY device wifi list | sed 1d | \
-        awk -F'  +' '{printf "%-20s  %s  %s\n", $1, $2, $3}')
+# Main menu
+show_menu() {
+    local current=$(get_current)
     
-    if [[ -z "$LIST" ]]; then
-        MENU="$OPTIONS\n----------------------------------------\n(No Networks Found)"
-    else
-        MENU="$OPTIONS\n----------------------------------------\n$LIST"
-    fi
-else
-    # Diagnostics
-    if [[ "$STATUS" == "RFKill Blocked" ]]; then
-        MENU="$OPTIONS\n----------------------------------------\n⚠️ RFKill Blocked.\nTry 'Enable WiFi (Force)' or check F12 key."
-    elif [[ "$STATUS" == "Interface Down/Error" ]]; then
-        MENU="$OPTIONS\n----------------------------------------\n⚠️ Interface Unavailable (No Block).\nTry 'Reset Networking' option above."
-    else
-        MENU="$OPTIONS"
-    fi
-fi
-
-# 3. Show Rofi
-SELECTED=$(echo -e "$MENU" | rofi -dmenu -p "WiFi" -theme "$THEME" -mesg "Status: $STATUS" -lines 15)
-
-# 4. Handle Selection
-case "$SELECTED" in
-    "") exit 0 ;;
-    "直 Enable WiFi") nmcli radio wifi on; notify "Enabling WiFi..." ;;
-    "直 Enable WiFi (Force)") nmcli radio wifi off; sleep 1; nmcli radio wifi on; notify "Forcing WiFi Enable..." ;;
-    "直 Reset Networking") 
-        notify "Resetting Network Manager..."
-        nmcli networking off
-        sleep 2
-        nmcli networking on
-        notify "Networking Restarted. Please rescan." 
-        ;;
-    "睊 Disable WiFi") nmcli radio wifi off; notify "Disabling WiFi..." ;;
-    " Rescan") nmcli device wifi rescan; notify "Scanning..." ;;
-    *)
-        # It's a network. Parse SSID.
-        # Assumption: SSID is everything before the double-space separator we made in awk? 
-        # Or simply: The SSID is the start of the line.
-        # But awk printf "%-20s" pads it.
-        # Let's clean it.
-        
-        # Remove divider line
-        [[ "$SELECTED" =~ "---" ]] && exit 0
-        
-        # Extract SSID (Take substring or use awk)
-        # Using the column width knowledge: first 20 chars are SSID (padded)
-        RAW_SSID=$(echo "$SELECTED" | awk '{print $1}') 
-        # Wait, awk defaults to space split. SSID "My Wifi" becomes $1="My". Wrong.
-        
-        # Better: use the original nmcli output format matching?
-        # Let's retrieve the SSID by matching the selected line against a fresh scan? No, race condition.
-        
-        # Robust parsing:
-        # The selected string is "SSID_PADDED  BARS  SEC"
-        # We can extract up to the first occurrence of "  ▂" (Bars)? No, bars vary.
-        # We can extract up to the last 2 columns?
-        
-        # Let's try: "SSID" is everything before the "  " (2 spaces) separator usage in awk.
-        # sed 's/  .*//' might work if we forced double spaces.
-        SSID=$(echo "$SELECTED" | sed 's/  .*//' | sed 's/ *$//')
-        
-        if [[ -z "$SSID" ]]; then exit 0; fi
-
-        # Check if saved connection exists
-        if nmcli connection show "$SSID" >/dev/null 2>&1; then
-            notify "Connecting to $SSID..."
-            nmcli connection up "$SSID"
+    if wifi_on; then
+        if [[ -n "$current" ]]; then
+            echo "󰤨 $current"
         else
-            # New connection: Prompt for password
-            # Check security type from selection to see if password needed
-            if [[ "$SELECTED" =~ "--" ]]; then
-                # Open network
-                notify "Connecting to $SSID (Open)..."
-                nmcli device wifi connect "$SSID"
-            else
-                # WPA/WEP
-                PASS=$(rofi -dmenu -p " Password" -password -theme "$THEME" -mesg "Enter password for $SSID" -lines 0)
-                if [[ -n "$PASS" ]]; then
-                    notify "Connecting to $SSID..."
-                    nmcli device wifi connect "$SSID" password "$PASS"
-                fi
-            fi
+            echo "󰤭 Not Connected"
         fi
+        echo "$DIVIDER"
+        echo "󰤮 WiFi Off"
+        echo "󰑓 Scan"
+        echo "$DIVIDER"
+        
+        # List available networks
+        nmcli -t -f SSID,SIGNAL,SECURITY,IN-USE device wifi list 2>/dev/null | \
+        while IFS=: read -r ssid signal security inuse; do
+            [[ -z "$ssid" ]] && continue
+            
+            # Signal icon
+            if [[ "$signal" -ge 75 ]]; then icon="󰤨"
+            elif [[ "$signal" -ge 50 ]]; then icon="󰤥"
+            elif [[ "$signal" -ge 25 ]]; then icon="󰤢"
+            else icon="󰤟"
+            fi
+            
+            # Security lock
+            [[ -n "$security" && "$security" != "--" ]] && lock="󰌾" || lock=""
+            
+            # Connected indicator
+            if [[ "$inuse" == "*" ]]; then
+                echo " $ssid $lock|$ssid"
+            else
+                echo "$icon $ssid $lock|$ssid"
+            fi
+        done | awk -F'|' '!seen[$2]++' # Remove duplicates by SSID
+    else
+        echo "󰤮 WiFi OFF"
+        echo "$DIVIDER"
+        echo "󰤨 WiFi On"
+    fi
+}
+
+# Connect to a network
+connect_network() {
+    local ssid="$1"
+    
+    # Check if known network
+    if nmcli connection show "$ssid" &>/dev/null; then
+        notify "Connecting to $ssid..."
+        nmcli connection up "$ssid" &>/dev/null
+    else
+        # Check if open or secured
+        local security=$(nmcli -t -f SSID,SECURITY device wifi list 2>/dev/null | grep "^$ssid:" | cut -d: -f2 | head -1)
+        
+        if [[ -n "$security" && "$security" != "--" ]]; then
+            # Secured - ask for password
+            local pass=$(rofi -dmenu -password -p "󰌾 Password" -mesg "$ssid")
+            [[ -z "$pass" ]] && return
+            notify "Connecting to $ssid..."
+            nmcli device wifi connect "$ssid" password "$pass" &>/dev/null
+        else
+            # Open network
+            notify "Connecting to $ssid..."
+            nmcli device wifi connect "$ssid" &>/dev/null
+        fi
+    fi
+    
+    # Check result
+    sleep 2
+    if [[ "$(get_current)" == "$ssid" ]]; then
+        notify "Connected: $ssid"
+    else
+        notify "Failed: $ssid"
+    fi
+}
+
+# Network submenu
+network_menu() {
+    local ssid="$1"
+    local current=$(get_current)
+    local opts=""
+    
+    if [[ "$ssid" == "$current" ]]; then
+        opts="󰤮 Disconnect"
+    else
+        opts="󰤨 Connect"
+    fi
+    
+    # Check if saved connection
+    if nmcli connection show "$ssid" &>/dev/null; then
+        opts+="\n󰆴 Forget"
+    fi
+    
+    local action=$(echo -e "$opts" | rofi -dmenu -i -p "$ssid")
+    
+    case "$action" in
+        "󰤨 Connect")
+            connect_network "$ssid"
+            ;;
+        "󰤮 Disconnect")
+            nmcli connection down "$ssid" &>/dev/null
+            notify "Disconnected"
+            ;;
+        "󰆴 Forget")
+            nmcli connection delete "$ssid" &>/dev/null
+            notify "Removed: $ssid"
+            ;;
+    esac
+}
+
+# Main
+sel=$(show_menu | rofi -dmenu -i -p "󰤨 WiFi")
+
+case "$sel" in
+    "󰤨 "*|"󰤭 Not Connected"|"󰤮 WiFi OFF"|"$DIVIDER") exec "$0" ;;
+    "󰤨 WiFi On") nmcli radio wifi on; sleep 1; exec "$0" ;;
+    "󰤮 WiFi Off") nmcli radio wifi off; notify "WiFi Off" ;;
+    "󰑓 Scan")
+        notify "Scanning..."
+        nmcli device wifi rescan &>/dev/null
+        sleep 2
+        exec "$0"
+        ;;
+    "") exit 0 ;;
+    *)
+        # Extract SSID (format: "icon SSID lock|SSID")
+        ssid="${sel##*|}"
+        [[ -n "$ssid" ]] && network_menu "$ssid"
         ;;
 esac
-exit 0

@@ -1,0 +1,25 @@
+# LED Permissions for ASUS Zenbook S13 OLED (UM5302TA)
+# Grants write access to mic mute and camera LEDs for users
+# Install: sudo cp this-file /etc/udev/rules.d/99-mic-led.rules && sudo udevadm control --reload-rules
+
+# ============================================================================
+# MICROPHONE MUTE LED
+# ============================================================================
+# Platform mic mute LED (Intel/AMD laptops)
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="platform::micmute", RUN+="/bin/chmod 666 /sys/class/leds/%k/brightness"
+
+# ASUS-specific mic mute LED
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="asus::micmute", RUN+="/bin/chmod 666 /sys/class/leds/%k/brightness"
+
+# Generic mic mute LED patterns
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="*micmute*", RUN+="/bin/chmod 666 /sys/class/leds/%k/brightness"
+
+# ============================================================================
+# CAMERA LED
+# ============================================================================
+# ASUS camera LED
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="asus::camera", RUN+="/bin/chmod 666 /sys/class/leds/%k/brightness"
+
+# Generic camera LED patterns
+ACTION=="add|change", SUBSYSTEM=="leds", KERNEL=="*camera*", RUN+="/bin/chmod 666 /sys/class/leds/%k/brightness"
+

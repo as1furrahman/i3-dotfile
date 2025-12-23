@@ -52,7 +52,7 @@ readonly PKG_FIRMWARE=(firmware-linux firmware-linux-nonfree firmware-amd-graphi
 readonly PKG_SYSTEM=(bluez network-manager tlp tlp-rdw powertop)
 readonly PKG_FONTS=(fonts-cascadia-code fonts-jetbrains-mono fonts-firacode fonts-noto-core fonts-noto-color-emoji fonts-liberation2 fonts-dejavu-core fonts-font-awesome)
 readonly PKG_THEMES=(papirus-icon-theme arc-theme)
-readonly PKG_UTILS=(dex arandr imagemagick curl wget git unzip fontconfig p7zip-full unrar maim xclip brightnessctl xinput playerctl polkitd pkexec lxpolkit acpi cheese jq fzf atool trash-cli)
+readonly PKG_UTILS=(dex arandr imagemagick curl wget git unzip fontconfig p7zip-full unrar maim xclip brightnessctl xinput playerctl polkitd pkexec lxpolkit acpi cheese jq fzf atool trash-cli iw)
 readonly PKG_DEV=(bat ripgrep fd-find eza build-essential gfortran cmake)
 
 enable_repositories() {
