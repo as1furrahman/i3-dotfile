@@ -60,15 +60,53 @@ install_udev_rules() {
     fi
     
     # NetworkManager WiFi management fix
+    # On minimal Debian, WiFi is often configured via /etc/network/interfaces
+    # with a standalone wpa_supplicant that conflicts with NetworkManager
+    log "Configuring NetworkManager for WiFi management..."
+    
+    # 1. Install NM config to manage all WiFi
     local nm_src="$DOTFILES_DIR/system/manage-wifi.conf"
     local nm_dest="/etc/NetworkManager/conf.d/99-manage-wifi.conf"
     
     if [[ -f "$nm_src" ]]; then
-        log "Installing NetworkManager WiFi config..."
         sudo mkdir -p /etc/NetworkManager/conf.d
         sudo cp "$nm_src" "$nm_dest"
-        success "NetworkManager config installed (WiFi managed)"
-        log "Restart NetworkManager to apply: sudo systemctl restart NetworkManager"
+        success "NetworkManager config installed"
+    fi
+    
+    # 2. Kill standalone wpa_supplicant that may be holding WiFi
+    local WIFI_IF=$(nmcli -t -f DEVICE,TYPE device 2>/dev/null | grep ':wifi$' | cut -d: -f1 | head -1)
+    if [[ -n "$WIFI_IF" ]]; then
+        log "WiFi interface: $WIFI_IF"
+        
+        # Check for standalone wpa_supplicant (not NM's)
+        if pgrep -f "wpa_supplicant.*-i.*$WIFI_IF" &>/dev/null; then
+            log "Killing standalone wpa_supplicant on $WIFI_IF..."
+            sudo pkill -f "wpa_supplicant.*-i.*$WIFI_IF" 2>/dev/null || true
+            success "Standalone wpa_supplicant killed"
+        fi
+    fi
+    
+    # 3. Comment out WiFi in /etc/network/interfaces (if present)
+    if [[ -f /etc/network/interfaces ]]; then
+        if grep -q "wlan\|wlp\|wifi" /etc/network/interfaces 2>/dev/null; then
+            log "Disabling WiFi in /etc/network/interfaces..."
+            sudo sed -i.bak '/wlan\|wlp\|wifi/s/^/#NM#/' /etc/network/interfaces 2>/dev/null || true
+            success "WiFi entries commented out (backup: interfaces.bak)"
+        fi
+    fi
+    
+    # 4. Restart NetworkManager to take over
+    log "Restarting NetworkManager..."
+    sudo systemctl restart NetworkManager 2>/dev/null || true
+    sleep 2
+    
+    # 5. Verify WiFi is now managed
+    local WIFI_STATE=$(nmcli -t -f DEVICE,STATE device 2>/dev/null | grep "^$WIFI_IF:" | cut -d: -f2)
+    if [[ "$WIFI_STATE" != "unavailable" && "$WIFI_STATE" != "" ]]; then
+        success "WiFi is now managed by NetworkManager"
+    else
+        warn "WiFi may need manual intervention. Run: nmcli radio wifi on"
     fi
 }
 
