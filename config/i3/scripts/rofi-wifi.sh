@@ -76,25 +76,24 @@ show_menu() {
 connect_network() {
     local ssid="$1"
     
-    # Check if known network
-    if nmcli connection show "$ssid" &>/dev/null; then
+    # Get security type for this network
+    local security=$(nmcli -t -f SSID,SECURITY device wifi list 2>/dev/null | awk -F: -v ssid="$ssid" '$1 == ssid {print $2; exit}')
+    
+    if [[ -z "$security" || "$security" == "--" || "$security" == "" ]]; then
+        # Open network - connect directly (no password needed)
         notify "Connecting to $ssid..."
-        nmcli connection up "$ssid" &>/dev/null
+        nmcli device wifi connect "$ssid" &>/dev/null
     else
-        # Check if open or secured
-        local security=$(nmcli -t -f SSID,SECURITY device wifi list 2>/dev/null | grep "^$ssid:" | cut -d: -f2 | head -1)
+        # Secured network - ALWAYS ask for password
+        local pass=$(rofi -dmenu -password -p "󰌾 Password" -mesg "Enter password for: $ssid")
+        [[ -z "$pass" ]] && return
         
-        if [[ -n "$security" && "$security" != "--" ]]; then
-            # Secured - ask for password
-            local pass=$(rofi -dmenu -password -p "󰌾 Password" -mesg "$ssid")
-            [[ -z "$pass" ]] && return
-            notify "Connecting to $ssid..."
-            nmcli device wifi connect "$ssid" password "$pass" &>/dev/null
-        else
-            # Open network
-            notify "Connecting to $ssid..."
-            nmcli device wifi connect "$ssid" &>/dev/null
-        fi
+        # Delete any existing saved connection to use the new password
+        nmcli connection delete "$ssid" &>/dev/null 2>&1
+        
+        notify "Connecting to $ssid..."
+        # This will save the connection for future auto-connect
+        nmcli device wifi connect "$ssid" password "$pass" &>/dev/null
     fi
     
     # Check result
@@ -110,41 +109,31 @@ connect_network() {
 network_menu() {
     local ssid="$1"
     local current=$(get_current)
-    local opts=""
     
+    # If this is the current network, show disconnect option
     if [[ "$ssid" == "$current" ]]; then
-        opts="󰤮 Disconnect"
+        local action=$(echo -e "󰤮 Disconnect\n󰆴 Forget" | rofi -dmenu -i -p "$ssid")
+        case "$action" in
+            "󰤮 Disconnect")
+                nmcli connection down "$ssid" &>/dev/null
+                notify "Disconnected"
+                ;;
+            "󰆴 Forget")
+                nmcli connection delete "$ssid" &>/dev/null
+                notify "Removed: $ssid"
+                ;;
+        esac
     else
-        opts="󰤨 Connect"
+        # Not connected - directly connect (will ask for password if secured)
+        connect_network "$ssid"
     fi
-    
-    # Check if saved connection
-    if nmcli connection show "$ssid" &>/dev/null; then
-        opts+="\n󰆴 Forget"
-    fi
-    
-    local action=$(echo -e "$opts" | rofi -dmenu -i -p "$ssid")
-    
-    case "$action" in
-        "󰤨 Connect")
-            connect_network "$ssid"
-            ;;
-        "󰤮 Disconnect")
-            nmcli connection down "$ssid" &>/dev/null
-            notify "Disconnected"
-            ;;
-        "󰆴 Forget")
-            nmcli connection delete "$ssid" &>/dev/null
-            notify "Removed: $ssid"
-            ;;
-    esac
 }
 
 # Main
 sel=$(show_menu | rofi -dmenu -i -p "󰤨 WiFi")
 
 case "$sel" in
-    "󰤨 "*|"󰤭 Not Connected"|"󰤮 WiFi OFF"|"$DIVIDER") exec "$0" ;;
+    " Not Connected"|"󰤮 WiFi OFF"|"$DIVIDER") exec "$0" ;;
     "󰤨 WiFi On") nmcli radio wifi on; sleep 1; exec "$0" ;;
     "󰤮 WiFi Off") nmcli radio wifi off; notify "WiFi Off" ;;
     "󰑓 Scan")
@@ -156,7 +145,12 @@ case "$sel" in
     "") exit 0 ;;
     *)
         # Extract SSID (format: "icon SSID lock|SSID")
-        ssid="${sel##*|}"
-        [[ -n "$ssid" ]] && network_menu "$ssid"
+        if [[ "$sel" == *"|"* ]]; then
+            ssid="${sel##*|}"
+            [[ -n "$ssid" ]] && network_menu "$ssid"
+        else
+            # Header line (current connection) - refresh
+            exec "$0"
+        fi
         ;;
 esac
