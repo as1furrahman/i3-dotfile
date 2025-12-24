@@ -88,11 +88,14 @@ install_udev_rules() {
     fi
     
     # 3. Comment out WiFi in /etc/network/interfaces (if present)
+    # This is crucial for Debian minimal installs where WiFi is configured via interfaces
     if [[ -f /etc/network/interfaces ]]; then
         if grep -q "wlan\|wlp\|wifi" /etc/network/interfaces 2>/dev/null; then
-            log "Disabling WiFi in /etc/network/interfaces..."
-            sudo sed -i.bak '/wlan\|wlp\|wifi/s/^/#NM#/' /etc/network/interfaces 2>/dev/null || true
-            success "WiFi entries commented out (backup: interfaces.bak)"
+            log "Found WiFi config in /etc/network/interfaces - disabling..."
+            sudo sed -i.bak '/wlan\|wlp\|wifi/s/^/#NM# /' /etc/network/interfaces 2>/dev/null || true
+            success "WiFi entries commented out (backup: /etc/network/interfaces.bak)"
+        else
+            log "No WiFi config in /etc/network/interfaces"
         fi
     fi
     
