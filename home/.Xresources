@@ -12,3 +12,8 @@ Xft.rgba: rgb
 Xft.autohint: false
 Xft.hintstyle: hintslight
 Xft.lcdfilter: lcddefault
+
+! Cursor settings (fixes i3bar cursor glitching)
+Xcursor.theme: Adwaita
+Xcursor.size: 32
+
