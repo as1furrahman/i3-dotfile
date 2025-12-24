@@ -58,7 +58,7 @@ color=#c0caf5
 interval=5
 
 [ethernet]
-command=ETH_IF=$(nmcli -t -f DEVICE,TYPE device | grep ':ethernet$' | cut -d: -f1 | head -1); if [ "$BLOCK_BUTTON" = "1" ]; then if [ -n "$ETH_IF" ]; then STATE=$(cat /sys/class/net/$ETH_IF/operstate 2>/dev/null); notify-send "Ethernet: $ETH_IF" "Status: $STATE"; else notify-send "Ethernet" "No adapter"; fi; fi; if [ -n "$ETH_IF" ] && [ "$(cat /sys/class/net/$ETH_IF/operstate 2>/dev/null)" = "up" ]; then echo "⬤"; echo ""; echo "#9ece6a"; else echo "⬤"; echo ""; echo "#f7768e"; fi
+command=ETH_IF=$(nmcli -t -f DEVICE,TYPE device | grep ':ethernet$' | cut -d: -f1 | head -1); ETH_STATE=$(nmcli -t -f DEVICE,STATE device 2>/dev/null | grep "^$ETH_IF:" | cut -d: -f2); if [ "$BLOCK_BUTTON" = "1" ]; then if [ -n "$ETH_IF" ]; then notify-send "Ethernet: $ETH_IF" "Status: $ETH_STATE"; else notify-send "Ethernet" "No adapter"; fi; fi; if [ "$ETH_STATE" = "connected" ]; then echo "⬤"; echo ""; echo "#9ece6a"; else echo "⬤"; echo ""; echo "#f7768e"; fi
 label=
 interval=10
 markup=pango
